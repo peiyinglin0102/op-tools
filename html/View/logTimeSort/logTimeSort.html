@@ -1,0 +1,302 @@
+<!-- 只保留一次 -->
+<script src="./logTimeSort.js"></script>
+
+<style>
+#page-wrapper {
+  background: #0d1117;
+  color: #c9d1d9;
+}
+
+#page-wrapper .page-header {
+  padding-bottom: 9px;
+  margin: 5px 0 15px;
+  border-bottom: 1px solid #30363d;
+  font-size: 28px;
+  color: #f7f7f7;
+}
+
+/* panel heading 如果你有用到（跟 opCanned 同一種手感） */
+#page-wrapper .panel-heading {
+  background-color: transparent !important;
+  border: none !important;
+  padding-left: 28px;
+}
+
+.container-fluid { padding-left: 0 !important; }
+
+/* ===============================
+   LOG 排序工具專用樣式
+=============================== */
+.tool-panel {
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 18px;
+}
+
+.tool-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tool-title span.emoji { font-size: 20px; }
+.tool-sub { font-size: 13px; color: #9fb3c8; margin-bottom: 10px; }
+
+.log-input-box {
+  background-color: #0d1117;
+  color: #e6edf3;
+  padding: 10px;
+  border-radius: 8px;
+  font-family: Consolas, "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid #30363d;
+  min-height: 180px;
+  max-height: 320px;
+}
+.log-input-box:focus {
+  outline: none;
+  border-color: #4ea5d9;
+  box-shadow: 0 0 0 1px rgba(78,165,217,0.4);
+}
+.log-input-box[data-placeholder]:empty:before {
+  content: attr(data-placeholder);
+  color: #6b7280;
+  pointer-events: none;
+}
+
+textarea { resize: vertical; font-family: Consolas, Monaco, monospace; font-size: 13px; line-height: 1.4; box-sizing: border-box; }
+#rawSortedOutput {
+  width: 100%;
+  height: 200px;
+  background-color: #0d1117;
+  color: #e6edf3;
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  padding: 10px;
+}
+
+/* ================================
+   欄位選擇區塊（Accordion）
+=============================== */
+.category-group {
+  border: 1px solid #30363d;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  background-color: #0d1117;
+  overflow: hidden;
+}
+.category-summary {
+  padding: 10px 15px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 14px;
+  color: #e6edf3;
+  background-color: #21262d;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  user-select: none;
+  transition: background 0.2s;
+}
+.category-summary:hover { background-color: #30363d; }
+.category-summary::-webkit-details-marker { display: none; }
+.category-summary::after {
+  content: '\f107';
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  transition: transform 0.3s;
+}
+details[open] .category-summary::after { transform: rotate(180deg); }
+
+.category-content {
+  padding: 12px 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid #30363d;
+  background-color: #161b22;
+}
+
+.checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  background: #0d1117;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 13px;
+  color: #ffffff;
+  border: 1px solid #30363d;
+  transition: all 0.2s;
+}
+.checkbox-label:hover { background: #21262d; border-color: #58a6ff; }
+.checkbox-label input { margin-right: 6px; accent-color: #238636; }
+.checkbox-label.is-checked {
+  background: rgba(35, 134, 54, 0.15);
+  border-color: #238636;
+  color: #e6edf3;
+}
+
+/* 表格 */
+#outputTable { width: 100%; border-collapse: collapse; color: #e6edf3; font-size: 13px; }
+#outputTable th, #outputTable td { border: 1px solid #30363d; padding: 6px 8px; text-align: left; vertical-align: top; }
+#outputTable th { background-color: #0b1620; font-weight: 800; color: #00ccff; cursor: move; white-space: nowrap; }
+#outputTable tr:nth-child(even) { background-color: #0d1117; }
+#outputTable tr:nth-child(odd) { background-color: #111827; }
+#outputTable th.drag-over { outline: 2px dashed #4ea5d9; outline-offset: -3px; }
+.fixed-date { white-space: nowrap; font-family: Consolas, "Fira Code", monospace; }
+
+/* 按鈕（維持你原本手感） */
+.btn { border-radius: 8px; font-weight: 700; letter-spacing: .2px; font-size: 14px; }
+.btn-primary { background: #238636; border: 1px solid #238636; color: #ffffff; }
+.btn-primary:hover { filter: brightness(1.08); }
+.btn-secondary { background: #30363d; border: 1px solid #30363d; color: #e6edf3; }
+.btn-secondary:hover { filter: brightness(1.06); }
+.btn-sm { padding: 4px 10px; font-size: 13px; }
+
+.tool-actions { margin-top: 10px; display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+.muted { color: #9fb3c8; font-size: 12px; }
+
+/* 使用說明 */
+.info-section {
+  margin-top: 18px;
+  padding: 18px 20px;
+  background: #162028;
+  border-left: 4px solid #4ea5d9;
+  color: #d8dee9;
+  line-height: 1.6;
+}
+.info-section h4 {
+  margin-top: 0;
+  margin-bottom: 12px;
+  font-size: 16px;
+  color: #ffffff;
+}
+.info-section code {
+  background: #0f1418;
+  padding: 3px 6px;
+  border-radius: 3px;
+  color: #a5e0ff;
+}
+</style>
+
+<div id="page-wrapper" class="max-hight">
+  <div class="row">
+    <div class="col-lg-12">
+      <h1 class="page-header">MG LOG 排序</h1>
+    </div>
+  </div>
+
+  <div class="row">
+    <div id="app" class="container-fluid">
+
+      <div class="tool-panel">
+        <div class="tool-title">
+          <span class="emoji">1.</span>
+          <span>輸入 LOG 📝</span>
+        </div>
+        <div class="tool-sub">將 MG / WebAPI LOG 貼進來，會自動依日期時間欄位排序。</div>
+
+        <div id="inputLog"
+             class="log-input-box"
+             contenteditable="true"
+             data-placeholder="在此貼上您的 LOG..."></div>
+
+        <div class="tool-actions">
+          <button type="button" class="btn btn-primary" id="btn_parse_log">解析並排序 LOG</button>
+          <span class="muted">小提示：Ctrl + Enter 也可開始解析。</span>
+        </div>
+      </div>
+
+      <div class="tool-panel">
+        <div class="tool-title">
+          <span class="emoji">2.</span>
+          <span>原始 Log 排序結果</span>
+        </div>
+        <div class="tool-sub">依時間由舊到新排序後，保留原始整行內容。</div>
+
+        <div class="tool-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn_copy_raw_sorted">複製排序後 Log</button>
+        </div>
+        <textarea id="rawSortedOutput" readonly></textarea>
+      </div>
+
+      <div class="tool-panel" id="fieldSelectionCard">
+        <div class="tool-title">
+          <span class="emoji">3.</span>
+          <span>選擇顯示欄位 ⚙️</span>
+        </div>
+        <div class="tool-sub">點選下方分類展開選單，勾選欲顯示的欄位。</div>
+
+        <div id="fieldAccordion" class="space-y-2"></div>
+
+        <div class="tool-actions">
+          <button type="button" class="btn btn-secondary btn-sm" id="btn_update_table">更新列表 🔄</button>
+          <span class="muted">[表格欄位]可[拖曳]標題重新排序欄位順序。</span>
+        </div>
+      </div>
+
+      <div class="tool-panel">
+        <div class="tool-title">
+          <span class="emoji">4.</span>
+          <span>排序結果表格（由舊到新）⬇️</span>
+        </div>
+        <div class="tool-sub">每一列代表一行 LOG，會展開 JSON data 欄位，讓你用表格方式檢視。</div>
+
+        <div class="table-responsive" style="max-height: 420px; overflow: auto;">
+          <table id="outputTable">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="info-section">
+        <h4>使用說明</h4>
+        <p>
+          1️⃣ 將 MG / WebAPI / LOG 貼到第 1 步「輸入 LOG」區塊<br>
+          需包含 <strong>,data=</strong>，例如：<br>
+          <code>2025/12/19 14:36:15 ... /api/xxx?x=1 ,data={"update":"{...}"}</code>
+        </p>
+
+        <p>
+          2️⃣ 點「解析並排序 LOG 」或按 <strong>Ctrl + Enter</strong> 進行解析。<br>
+          系統會依 <code>Time</code> 欄位由舊到新排序，並同時輸出「原始 Log 排序結果」。
+        </p>
+
+        <p>
+          3️⃣ 「選擇顯示欄位」可以：<br>
+          ・展開分類勾選要顯示的欄位<br>
+          ・使用「搜尋欄位」快速找英文 key 或中文名稱<br>
+          ・按「更新列表 🔄」把表格欄位更新成你目前勾選的欄位
+        </p>
+
+        <p>
+          4️⃣ 表格操作：<br>
+          ・每一列代表一行 log（會展開 data 內的欄位）<br>
+          ・可拖曳表格標題（欄位名）調整欄位順序<br>
+          ・若 log 內含 <code>bike_gps</code>，會自動計算 <code>GPS_Decimal</code>（十進位緯經度）
+        </p>
+
+        <p>
+          5️⃣ 常見解析失敗原因：<br>
+          ・整行沒有 <code>,data=</code><br>
+          ・<code>data=</code> 後面不是合法 JSON（缺括號、引號被截斷）<br>
+          ・多行貼上時，某些行不是 log 內容（可先刪掉無關行）
+        </p>
+      </div>
+
+    </div>
+  </div>
+</div>

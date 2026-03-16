@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<title>清分檔工具</title>
+
+<link rel="stylesheet" href="/public/css/bootstrap.min.css">
+
+<style>
+/* ===============================
+   ⭐ 使用說明（僅新增，不影響表格）
+=============================== */
+.info-section {
+    margin: 16px 0;
+    padding: 16px 18px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+.info-section h4 {
+    margin: 0 0 10px;
+    font-size: 15px;
+    color: #ffffff;
+}
+/* ===============================
+   ⭐ 強制清除 Bootstrap panel-info 淺藍底
+   ⭐ 對齊 ecc1512Code 風格
+=============================== */
+#page-wrapper .panel.panel-info {
+    background: transparent !important;
+    border: none !important;
+}
+
+#page-wrapper .panel.panel-info > .panel-heading {
+    background-color: transparent !important;
+    border: none !important;
+    padding-left: 28px;
+    padding-right: 0;
+}
+
+#page-wrapper .panel.panel-info > .panel-body {
+    background: transparent !important;
+    border: none !important;
+}
+
+/* label 白色（與 ecc1512Code 一致） */
+#page-wrapper .panel-heading label {
+    color: #ffffff;
+}
+#page-wrapper .tab-content,
+#page-wrapper .tab-pane {
+    border: none !important;
+}
+
+/* 底下這行是順便把 tabs 的底線顏色調回深色系，跟其它頁一致 */
+#page-wrapper .nav-tabs {
+    border-bottom: 1px solid #30363d;
+}
+/* ===============================
+   ✅ 清分解析表格：取消黑白交錯（Bootstrap table-striped）
+   只改視覺，不動任何邏輯/框架
+=============================== */
+
+/* 1) 直接把 table-striped 的 odd/even 都改深色 */
+#page-wrapper table.table-custom-dark.table-striped > tbody > tr:nth-of-type(odd),
+#page-wrapper table.table-custom-dark.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: #0d1117 !important;
+}
+
+/* 2) 保險：每一格 td 都強制深色（避免某些情況 td 仍白底） */
+#page-wrapper table.table-custom-dark > tbody > tr > td,
+#page-wrapper table.table-custom-dark > tbody > tr > th {
+  background-color: #0d1117 !important;
+  color: #e6edf3 !important;
+  border-color: #30363d !important;
+}
+
+/* 3) （可選）左欄標題稍微深一階，仍是深色系，不會黑白交錯 */
+#page-wrapper table.table-custom-dark > tbody > tr > td:first-child {
+  background-color: #161b22 !important;
+  color: #c9d1d9 !important;
+  font-weight: 600;
+}
+
+/* 4) （可選）hover 提示 */
+#page-wrapper table.table-custom-dark > tbody > tr:hover > td {
+  background-color: #1f2937 !important;
+}
+
+</style>
+</head>
+
+<body>
+<div id="page-wrapper" class="max-hight">
+
+<div class="row">
+    <div class="col-lg-12">
+        <h1 class="page-header">清分檔工具</h1>
+    </div>
+</div>
+
+<div class="row">
+<div id="app" class="container-fluid">
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#eccTab">ECC 清分檔</a></li>
+    <li><a data-toggle="tab" href="#ipassTab">iPASS 清分檔</a></li>
+</ul>
+
+<div class="tab-content">
+
+<!-- ================= ECC ================= -->
+<div id="eccTab" class="tab-pane fade in active">
+<div class="panel panel-info panel-custom-dark">
+
+<div class="panel-heading panel-heading-dark form-inline">
+    <label for="cr_value_ecc">清分檔:</label>
+    <input type="text" id="cr_value_ecc" class="form-control" autocomplete="off">
+</div>
+
+<div class="panel-body panel-body-dark card-search-result">
+
+<div class="info-section">
+<h4>使用說明</h4>
+<p>1. 將 <strong>ECC 清分檔字串</strong> 貼入輸入框。</p>
+<p>2. 系統會依既定欄位長度解析。</p>
+<p>3. <strong>表格中每一格皆可點擊複製</strong>。</p>
+</div>
+
+<table class="table table-bordered table-striped text-center table-custom-dark">
+                        <tbody>
+                            <tr><td>卡號(內碼)</td><td id="a1E"></td></tr>
+                            <tr><td>卡號長度</td><td id="a2E"></td></tr>
+                            <tr><td>PurseVer票卡版號</td><td id="a3E"></td></tr>
+                            <tr><td>PID外觀卡號</td><td id="a4E"></td></tr>
+                            <tr><td>CTC卡交易號</td><td id="a5E"></td></tr>
+                            <tr><td>CardType卡別</td><td id="a6E"></td></tr>
+                            <tr><td>PersonalProfile身份別</td><td id="a7E"></td></tr>
+                            <tr><td>Device ID舊設備編號</td><td id="a8E"></td></tr>
+                            <tr><td>NewDeviceID新設備編號</td><td id="a9E"></td></tr>
+                            <tr><td>舊服務業者代碼</td><td id="a10E"></td></tr>
+                            <tr><td>新服務業者代碼</td><td id="a11E"></td></tr>
+                            <tr><td>舊場站代碼</td><td id="a12E"></td></tr>
+                            <tr><td>新場站代碼</td><td id="a13E"></td></tr>
+                            <tr><td>IssuerCode</td><td id="a14E"></td></tr>
+                            <tr><td>signature KVN票卡簽章金鑰號</td><td id="a15E"></td></tr>
+                            <tr><td>TM交易種類</td><td id="a16E"></td></tr>
+                            <tr><td>TQ交易屬性</td><td id="a17E"></td></tr>
+                            <tr><td>SubAreaCode子區碼</td><td id="a18E"></td></tr>
+                            <tr><td style="color:red;">交易前票卡餘額</td><td id="a19E"></td></tr>
+                            <tr><td>交易前票卡交易序號</td><td id="a20E"></td></tr>
+                            <tr><td>AreaCode區碼</td><td id="a21E"></td></tr>
+                            <tr><td style="color:red;">交易金額TXNAMT</td><td id="a22E"></td></tr>
+                            <tr><td>BankCode銀行代碼</td><td id="a23E"></td></tr>
+                            <tr><td>CPD二代卡防虛擬碼</td><td id="a24E"></td></tr>
+                            <tr><td>LastCreditLogp最後加值記錄</td><td id="a25E"></td></tr>
+                            <tr><td>SubType</td><td id="a26E"></td></tr>
+                            <tr><td>TSQN</td><td id="a27E"></td></tr>
+                            <tr><td style="color:red;">PurseBalance票卡餘額</td><td id="a28E"></td></tr>
+                            <tr><td>SIGN</td><td id="a29E"></td></tr>
+                            <tr><td>SID SAM ID</td><td id="a30E"></td></tr>
+                            <tr><td>MAC</td><td id="a31E"></td></tr>
+                            <tr><td>hash type</td><td id="a32E"></td></tr>
+                            <tr><td>host admin key kvn</td><td id="a33E"></td></tr>
+                            <tr><td>TXNDateTime</td><td id="a34E"></td></tr>
+                            <tr><td>扣款種類</td><td id="a35E"></td></tr>
+                            <tr><td>腳踏車編號BikeNo</td><td id="a36E"></td></tr>
+                            <tr><td>Another EV另一個錢包餘額</td><td id="a37E"></td></tr>
+                            <tr><td>MifareSettingParameter</td><td id="a38E"></td></tr>
+                            <tr><td>CPU SettingParameter</td><td id="a39E"></td></tr>
+                            <tr><td>還車車柱編號PartNo</td><td id="a40E"></td></tr>
+                            <tr><td>URT前筆轉乘序號</td><td id="a41E"></td></tr>
+                            <tr><td>URT前筆轉乘時間</td><td id="a42E"></td></tr>
+                            <tr><td>特種票到期日</td><td id="a43E"></td></tr>
+                            <tr><td>特種票票種</td><td id="a44E"></td></tr>
+                            <tr><td>換乘代碼</td><td id="a45E"></td></tr>
+                            <tr><td>新換乘代碼</td><td id="a46E"></td></tr>
+                            <tr><td>換乘優惠金額</td><td id="a47E"></td></tr>
+                            <tr><td>社福優惠金額</td><td id="a48E"></td></tr>
+                            <tr><td>社福卡免費搭乘累積點數</td><td id="a49E"></td></tr>
+                            <tr><td>借車車柱編號 rent_PartNo</td><td id="a50E"></td></tr>
+                            <tr><td>Personal Profile Authorization</td><td id="a51E"></td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+
+<!-- ================= iPASS ================= -->
+<div id="ipassTab" class="tab-pane fade">
+<div class="panel panel-info panel-custom-dark">
+
+<div class="panel-heading panel-heading-dark form-inline">
+    <label for="cr_value_ipass">清分檔:</label>
+    <input type="text" id="cr_value_ipass" class="form-control" autocomplete="off">
+</div>
+
+<div class="panel-body panel-body-dark card-search-result">
+
+<div class="info-section">
+<h4>使用說明</h4>
+<p>1. 將 <strong>iPASS 清分檔字串</strong> 貼入輸入框。</p>
+<p>2. 系統會依固定格式拆解欄位。</p>
+<p>3. <strong>每一格皆可點擊複製</strong>。</p>
+</div>
+
+<table class="table table-bordered table-striped text-center table-custom-dark">
+                        <tbody>
+                            <tr><td>卡號</td><td id="a1I"></td></tr>
+                            <tr><td>卡號批號</td><td id="a2I"></td></tr>
+                            <tr><td>交易讀寫器編號</td><td id="a3I"></td></tr>
+                            <tr><td>電子票值</td><td id="a4I"></td></tr>
+                            <tr><td>備份電子票值</td><td id="a5I"></td></tr>
+                            <tr><td>同步後票值</td><td id="a6I"></td></tr>
+                            <tr><td>優惠記名身份字型</td><td id="a7I"></td></tr>
+                            <tr><td>前筆交易日期</td><td id="a8I"></td></tr>
+                            <tr><td>前筆交易類別</td><td id="a9I"></td></tr>
+                            <tr><td>前筆扣款金額</td><td id="a10I"></td></tr>
+                            <tr><td>前筆餘額</td><td id="a11I"></td></tr>
+                            <tr><td>前筆系統編號</td><td id="a12I"></td></tr>
+                            <tr><td>前筆地點業者</td><td id="a13I"></td></tr>
+                            <tr><td>前筆設備編號</td><td id="a14I"></td></tr>
+                            <tr><td>同步狀態</td><td id="a15I"></td></tr>
+                            <tr><td>轉乘群#1</td><td id="a16I"></td></tr>
+                            <tr><td>轉乘群#2</td><td id="a17I"></td></tr>
+                            <tr><td>轉乘群#3</td><td id="a18I"></td></tr>
+                            <tr><td>轉乘群#4</td><td id="a19I"></td></tr>
+                            <tr><td>轉乘群#5</td><td id="a20I"></td></tr>
+                            <tr><td>轉乘群#6</td><td id="a21I"></td></tr>
+                            <tr><td>轉乘群#7</td><td id="a22I"></td></tr>
+                            <tr><td>個人身份別</td><td id="a23I"></td></tr>
+                            <tr><td>發卡單位編號</td><td id="a24I"></td></tr>
+                            <tr><td>交易金額</td><td id="a25I"></td></tr>
+                            <tr><td>交易時間</td><td id="a26I"></td></tr>
+                            <tr><td>交易類別</td><td id="a27I"></td></tr>
+                            <tr><td>租賃應付金額</td><td id="a28I"></td></tr>
+                            <tr><td>轉騎優惠金額</td><td id="a29I"></td></tr>
+                            <tr><td>專案優惠金額</td><td id="a30I"></td></tr>
+                            <tr><td>專案旗標</td><td id="a31I"></td></tr>
+                            <tr><td>借車時間</td><td id="a32I"></td></tr>
+                            <tr><td>此次轉乘群#3</td><td id="a33I"></td></tr>
+                            <tr><td>此次轉乘群#2</td><td id="a34I"></td></tr>
+                            <tr><td>交易後餘額</td><td id="a35I"></td></tr>
+                            <tr><td>卡片交易序號</td><td id="a36I"></td></tr>
+                            <tr><td>SAM卡號</td><td id="a37I"></td></tr>
+                            <tr><td>押碼值</td><td id="a38I"></td></tr>
+                            <tr><td>押碼 byte array</td><td id="a39I"></td></tr>
+                            <tr><td>扣款種類</td><td id="a40I"></td></tr>
+                            <tr><td>腳踏車編號</td><td id="a41I"></td></tr>
+                            <tr><td>還車車柱</td><td id="a42I"></td></tr>
+                            <tr><td>借車車柱</td><td id="a43I"></td></tr>
+                            <tr><td>月票到期日</td><td id="a44I"></td></tr>
+                            <tr><td>效期有效天數</td><td id="a45I"></td></tr>
+                        </tbody>
+                    </table>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- JS -->
+<script src="./eccCR_merge.js"></script>
+<script src="./ipassCR_merge.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
+</body>
+</html>

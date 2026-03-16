@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>比對 / 去重工具</title>
+    <script src="./clearSame.js"></script>
+
+    <style>
+    /* ===============================
+       ⭐ 版面貼齊 monthly / battery / time
+    ================================ */
+    .container-fluid {
+        padding-left: 0 !important;
+    }
+
+    .page-header {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    #page-wrapper .panel-heading {
+        background-color: transparent !important;
+        border: none !important;
+        padding-left: 28px;
+    }
+
+    /* ===============================
+       ⭐ 主體區塊
+    ================================ */
+    .compare-layout {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 18px;
+        margin-top: 5px;
+    }
+
+    .compare-column {
+        flex: 1 1 320px;
+        min-width: 0;
+    }
+
+    .panel-block {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        padding: 12px 14px;
+        margin-bottom: 12px;
+    }
+
+    .panel-block h3 {
+        margin: 0 0 10px;
+        font-size: 16px;
+        color: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    .count-badge {
+        font-size: 12px;
+        color: #8b949e;
+    }
+
+    .input-textarea,
+    .output-textarea {
+        width: 100%;
+        min-height: 120px;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 4px;
+        color: #e6edf3;
+        padding: 8px 10px;
+        font-family: JetBrains Mono, Consolas, monospace;
+        font-size: 13px;
+        resize: vertical;
+        line-height: 1.4;
+    }
+
+    .output-textarea {
+        min-height: 160px;
+    }
+
+    .input-textarea::placeholder,
+    .output-textarea::placeholder {
+        color: #6b7280;
+    }
+
+    /* ===============================
+       ⭐ 統計列
+    ================================ */
+    .stats-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-top: 6px;
+    }
+
+    .stat-pill {
+        flex: 1 1 140px;
+        background: #111827;
+        border-radius: 999px;
+        padding: 6px 10px;
+        font-size: 12px;
+        color: #9ca3af;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border: 1px solid #30363d;
+        white-space: nowrap;
+    }
+
+    .stat-pill span.value {
+        color: #f97316;
+        font-weight: 600;
+    }
+
+    /* ===============================
+       ⭐ 按鈕 / 選項
+    ================================ */
+    .tool-options {
+        margin-top: 8px;
+        font-size: 13px;
+        color: #9ca3af;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .tool-options input[type="checkbox"] {
+        margin-right: 3px;
+    }
+
+    .copy-buttons {
+        margin-top: 6px;
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+
+    .btn-copy {
+        background: #2563eb;
+        border: none;
+        border-radius: 4px;
+        color: #ffffff;
+        font-size: 12px;
+        padding: 4px 8px;
+        cursor: pointer;
+    }
+
+    .btn-copy:hover {
+        background: #1d4ed8;
+    }
+
+    /* ===============================
+       ⭐ 使用說明（沿用 time 的 info-section 概念）
+    ================================ */
+    .info-section {
+        margin-top: 18px;
+        padding: 18px 20px;
+        background: #162028;
+        border-left: 4px solid #4ea5d9;
+        color: #d8dee9;
+        line-height: 1.6;
+    }
+
+    .info-section h4 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 16px;
+        color: #ffffff;
+    }
+
+    /* RWD 微調 */
+    @media (max-width: 1024px) {
+        .compare-layout {
+            flex-direction: column;
+        }
+    }
+    </style>
+</head>
+
+<body>
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">比對 / 去重工具</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="app" class="container-fluid">
+
+            <!-- 統計區（頂端小 Pills，風格比照 time 的簡潔感） -->
+            <div class="panel-heading">
+                <div class="stats-row">
+                    <div class="stat-pill">
+                        <span>A 欄位項目數</span>
+                        <span class="value" id="countA">0</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span>B 欄位項目數</span>
+                        <span class="value" id="countB">0</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span>C 欄位項目數</span>
+                        <span class="value" id="countC">0</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span>差異項目總數</span>
+                        <span class="value" id="countDiff">0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 主體區 -->
+            <div class="panel-body card-search-result">
+
+                <div class="compare-layout">
+                    <!-- ================= A 欄位 ================= -->
+                    <div class="compare-column">
+                        <div class="panel-block">
+                            <h3>
+                                A 欄位
+                                <span class="count-badge">
+                                    <span id="countALocal">0</span> 筆
+                                </span>
+                            </h3>
+                            <textarea
+                                id="inputA"
+                                class="input-textarea"
+                                placeholder="請在 A 欄位輸入資料，每行一個項目">
+                            </textarea>
+                        </div>
+
+                        <div class="panel-block">
+                            <h3>
+                                A 有、B 沒有
+                                <span class="count-badge">
+                                    <span id="countAOnly">0</span> 筆
+                                </span>
+                            </h3>
+                            <textarea
+                                id="outputAOnly"
+                                class="output-textarea"
+                                readonly
+                                placeholder="A 欄位獨有項目會顯示在這裡">
+                            </textarea>
+                            <div class="copy-buttons">
+                                <button class="btn-copy" data-target="outputAOnly">複製 A 獨有</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= B 欄位 ================= -->
+                    <div class="compare-column">
+                        <div class="panel-block">
+                            <h3>
+                                B 欄位
+                                <span class="count-badge">
+                                    <span id="countBLocal">0</span> 筆
+                                </span>
+                            </h3>
+                            <textarea
+                                id="inputB"
+                                class="input-textarea"
+                                placeholder="請在 B 欄位輸入資料，每行一個項目">
+                            </textarea>
+                        </div>
+
+                        <div class="panel-block">
+                            <h3>
+                                B 有、A 沒有
+                                <span class="count-badge">
+                                    <span id="countBOnly">0</span> 筆
+                                </span>
+                            </h3>
+                            <textarea
+                                id="outputBOnly"
+                                class="output-textarea"
+                                readonly
+                                placeholder="B 欄位獨有項目會顯示在這裡">
+                            </textarea>
+                            <div class="copy-buttons">
+                                <button class="btn-copy" data-target="outputBOnly">複製 B 獨有</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ================= C 欄位 ================= -->
+                    <div class="compare-column">
+                        <div class="panel-block">
+                            <h3>
+                                C 欄位
+                                <span class="count-badge">
+                                    <span id="countCLocal">0</span> 筆
+                                </span>
+                            </h3>
+                            <textarea
+                                id="inputC"
+                                class="input-textarea"
+                                placeholder="請在 C 欄位輸入資料，每行一個項目">
+                            </textarea>
+                        </div>
+
+                        <div class="panel-block">
+                            <h3>
+                                C 欄位去重結果
+                                <span class="count-badge">
+                                    <span id="countCUnique">0</span> 筆
+                                </span>
+                            </h3>
+                            <textarea
+                                id="outputCUnique"
+                                class="output-textarea"
+                                readonly
+                                placeholder="C 欄位去除重複後的結果會顯示在這裡">
+                            </textarea>
+                            <div class="copy-buttons">
+                                <button class="btn-copy" data-target="outputCUnique">複製 C 去重</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 功能設定 -->
+                <div class="tool-options">
+                    <label>
+                        <input type="checkbox" id="ignoreCase" checked>
+                        比對時 <strong>不區分大小寫</strong>
+                    </label>
+                </div>
+
+                <!-- 使用說明 -->
+                <div class="info-section">
+                    <h4>使用說明</h4>
+                    <p>1. 將資料貼到 <strong>A / B / C 欄位</strong>，每行視為一個項目。</p>
+                    <p>2. <strong>A 有、B 沒有</strong>：顯示只出現在 A、但沒出現在 B 的項目。</p>
+                    <p>3. <strong>B 有、A 沒有</strong>：顯示只出現在 B、但沒出現在 A 的項目。</p>
+                    <p>4. <strong>C 去重</strong>：會自動移除 C 欄位中重複的項目，只保留第一次出現。</p>
+                    <p>5. 勾選 <strong>不區分大小寫</strong>，比對時會把英文字轉成同一種大小寫再比較。</p>
+                    <p>6. 下方結果區塊都可以一鍵 <strong>複製</strong>，方便貼回 Excel 或其他系統。</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

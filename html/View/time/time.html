@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8">
+    <title>Time Tool</title>
+    <script src="./time.js"></script>
+
+    <style>
+/* ===============================
+   ⭐ 版面貼齊 monthly / battery
+=============================== */
+.container-fluid {
+    padding-left: 0 !important;
+}
+
+.page-header {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+/* 查詢區（透明） */
+#page-wrapper .panel-heading {
+    background-color: transparent !important;
+    border: none !important;
+    padding-left: 28px;
+}
+
+/* ===============================
+   ⭐ 表格（Battery 手感）
+=============================== */
+.time-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.time-table th,
+.time-table td {
+    border: 1px solid #30363d;
+    padding: 10px;
+    text-align: center;
+    background: #0d1117;
+    color: #e6edf3;
+}
+
+.time-table th {
+    background: #1e2730;
+    font-weight: bold;
+}
+
+.time-table td {
+    transition: background-color 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.time-table td:hover {
+    background: #232f3b;
+    box-shadow: inset 0 0 0 1px #4ea5d9;
+}
+
+/* ===============================
+   ⭐ 使用說明（完全比照 monthly）
+=============================== */
+.info-section {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+/* 刪除按鈕 */
+.btn-del {
+    background-color: #da3633;
+    border: none;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+    </style>
+</head>
+
+<body>
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">時間轉換工具</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="app" class="container-fluid">
+
+            <!-- ================= Unix → 西元 ================= -->
+            <div class="panel-heading">
+                <div class="form-inline">
+                    <label>Unix Time</label>
+                    <input type="text" id="unix_time_value" class="form-control" autocomplete="off">
+                    <button class="btn btn-primary" id="start_change_unix">轉換</button>
+                </div>
+            </div>
+
+
+            <div class="panel-body card-search-result">
+                <table class="time-table">
+                    <thead>
+                        <tr id="UnixFormattedDate">
+                            <th>原始值</th>
+                            <th>西元時間</th>
+                            <th>移除</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <!-- ================= 西元 → Unix ================= -->
+            <div class="panel-heading">
+                <div class="form-inline">
+                    <label>西元時間</label>
+                    <input type="text" id="epoch_time_value" class="form-control">
+                    <button class="btn btn-primary" id="start_change_epoch">轉換</button>
+                    <button class="btn btn-default" id="epoch_time_value_change_start">00 開始</button>
+                    <button class="btn btn-default" id="epoch_time_value_change_last">59 結束</button>
+                </div>
+            </div>
+
+
+            <div class="panel-body card-search-result">
+                <table class="time-table">
+                    <thead>
+                        <tr id="epochFormattedDate">
+                            <th>原始值</th>
+                            <th>Unix Time</th>
+                            <th>移除</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <!-- ================= DOS Date ================= -->
+            <div class="panel-heading form-inline" style="margin-top:16px;">
+                <label>月票 fare_product_expire_date (Hex)</label>
+                <input type="text" id="fare_product_expire_date_value" class="form-control" autocomplete="off">
+                <button class="btn btn-primary" id="fare_change_btn">轉換</button>
+            </div>
+
+            <div class="panel-body card-search-result">
+                <table class="time-table">
+                    <thead>
+                        <tr id="FareFormattedDate">
+                            <th>原始 Hex</th>
+                            <th>西元時間</th>
+                            <th>移除</th>
+                        </tr>
+                    </thead>
+                </table>
+
+                <!-- ================= 使用說明 ================= -->
+                <div class="info-section">
+                    <h4>使用說明</h4>
+                    <p>1. <strong>Unix Time → 西元</strong>：輸入獲得的數值點擊轉換，可快速確認實際發生時間。</p>
+                    <p>2. <strong>西元 → Unix Time</strong>：輸入完整時間，可搭配「00 開始 / 59 結束」快速對齊查 log 區間。</p>
+                    <p>3. <strong>月票日期轉換</strong>：用於月票fare_product_expire_date欄位轉換。</p>
+                    <p>4. 所有表格 <strong>每一格皆可單獨點擊複製</strong>，滑鼠 hover 會顯示提示框線。</p>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+</body>
+</html>

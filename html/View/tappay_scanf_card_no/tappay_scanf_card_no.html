@@ -1,0 +1,247 @@
+<script src="./tappay_scanf_card_no.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+
+<style>
+/* ===============================
+   Result 區塊（Battery 風格）
+=============================== */
+.result-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    background: #1e2730;
+    padding: 12px 15px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color .2s, border-color .2s;
+}
+
+.result-row:hover {
+    background: #232f3b;
+    border-color: #4ea5d9;
+}
+
+.result-label {
+    width: 200px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+.result-text {
+    flex: 1;
+    padding: 6px 12px;
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 4px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    font-family: Consolas, monospace;
+    user-select: all;
+}
+
+/* ===============================
+   查詢區塊樣式
+=============================== */
+#page-wrapper #form_value.panel-heading {
+    background-color: transparent !important;
+    border: none !important;
+    padding-left: 28px;
+}
+
+/* ===============================
+   說明區塊
+=============================== */
+.info-section {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+/* ===============================
+   ⭐ 銀行卡表格（舊版風格）
+=============================== */
+.bank-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.bank-table th,
+.bank-table td {
+    border: 1px solid #30363d;
+    padding: 10px;
+    text-align: center;
+    background: #0d1117;
+    color: #e6edf3;
+}
+
+.bank-table th {
+    background: #1e2730;
+    font-weight: bold;
+}
+
+/* ⭐ 表格 td hover（Battery 手感） */
+.bank-table td {
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.bank-table td:hover {
+    background: #232f3b;
+    box-shadow: inset 0 0 0 1px #4ea5d9;
+    cursor: pointer;
+}
+
+/* ===============================
+   對齊修正（跟 9970 一樣）
+=============================== */
+.container-fluid {
+    padding-left: 0 !important;
+}
+
+.page-header {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+/* ===============================
+   Tabs 樣式（跟 9970 一樣）
+=============================== */
+#page-wrapper .tab-content,
+#page-wrapper .tab-pane {
+    border: none !important;
+}
+
+#page-wrapper .nav-tabs {
+    border-bottom: 1px solid #30363d;
+}
+</style>
+
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Tappay 工具</h1>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="panel panel-info">
+            <div class="panel-body card-search-result">
+
+                <!-- 頁籤列（跟 9970 一樣用 Bootstrap tabs） -->
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a data-toggle="tab" href="#tab-tappay-main">Tappay 前六後四查詢</a>
+                    </li>
+                    <li>
+                        <a data-toggle="tab" href="#tab-bank-card">前六後四找卡號</a>
+                    </li>
+                </ul>
+
+                <!-- Tab 內容 -->
+                <div class="tab-content" style="margin-top:15px;">
+
+                    <!-- ===============================
+                         Tab1：Tappay 前六後四查詢
+                    ================================ -->
+                    <div id="tab-tappay-main" class="tab-pane fade in active">
+
+                        <div class="row">
+                            <div class="col-lg-12">
+
+                                <div class="panel-heading form-inline" id="form_value">
+                                    <div class="form-group">
+                                        <label>卡片前六後四</label>
+                                        <input type="text" id="card_start_last" class="form-control" autocomplete="off">
+                                    </div>
+                                    <input type="file" accept=".csv" id="csv_input">
+                                </div>
+
+                                <div class="panel-body">
+                                    <table class="bank-table">
+                                        <thead>
+                                        <tr id="tappay_table_header">
+                                            <th>時間</th>
+                                            <th>扣款 / 退還</th>
+                                            <th>交易識別碼</th>
+                                            <th>租車帳號</th>
+                                            <th>商家訂單號</th>
+                                            <th>前六後四</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="tappay_result"></tbody>
+                                    </table>
+
+                                    <div class="info-section">
+                                        <h4>使用說明｜Tappay 前六後四查詢</h4>
+                                        <p>1. 貼上前六後四卡號</p>
+                                        <p>2. 上傳 Tappay CSV</p>
+                                        <p>3. 同筆前六後四可能有多筆交易皆會顯示</p>
+                                        <p>4. 授權金不會有商家訂單號</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ===============================
+                         Tab2：前六後四找卡號
+                    ================================ -->
+                    <div id="tab-bank-card" class="tab-pane fade">
+
+                        <div class="row">
+                            <div class="col-lg-12">
+
+                                <div class="panel-heading form-inline">
+                                    <label>銀行卡號</label>
+                                    <input type="text" id="bank_card_no" class="form-control">
+                                    <button class="btn btn-primary" id="find_bank_card">查找</button>
+                                </div>
+
+                                <div class="panel-body">
+                                    <table class="bank-table">
+                                        <thead>
+                                        <tr id="bank_table_header">
+                                            <th>卡號</th>
+                                            <th>會員 ID</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody id="bank_result"></tbody>
+                                    </table>
+
+                                    <div class="info-section">
+                                        <h4>說明｜前六後四找卡號</h4>
+                                        <p>輸入前六後四，查詢系統中綁定的會員 ID。</p>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div> <!-- /tab-content -->
+
+            </div>
+        </div>
+    </div>
+</div>

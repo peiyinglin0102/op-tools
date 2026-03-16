@@ -1,0 +1,209 @@
+<script src="./getTempformat.js"></script>
+
+<style>
+/* ===============================
+   Result 區塊（完全沿用 battery）
+=============================== */
+.result-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    background: #1e2730;
+    padding: 12px 15px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.result-row:hover {
+    background: #232f3b;
+    border-color: #4ea5d9;
+}
+
+.result-label {
+    width: 200px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+.result-text {
+    flex: 1;
+    padding: 6px 12px;
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 4px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    font-family: Consolas, monospace;
+    user-select: all;
+}
+
+/* ===============================
+   對齊修正（一致）
+=============================== */
+.container-fluid {
+    padding-left: 0 !important;
+}
+
+.page-header {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+/* ===============================
+   使用說明區（battery 樣式）
+=============================== */
+.info-section {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.info-section code {
+    background: #0f1418;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #a5e0ff;
+}
+#page-wrapper .tab-content,
+#page-wrapper .tab-pane {
+    border: none !important;
+}
+
+/* 底下這行是順便把 tabs 的底線顏色調回深色系，跟其它頁一致 */
+#page-wrapper .nav-tabs {
+    border-bottom: 1px solid #30363d;
+}
+</style>
+
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">9970 工具</h1>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+        <div class="panel panel-info">
+            <div class="panel-body card-search-result">
+
+                <!-- 頁籤列（跟 crMerge 一樣用 Bootstrap tabs） -->
+                <ul class="nav nav-tabs">
+                    <li class="active">
+                        <a data-toggle="tab" href="#tab-batch-9970">多項 9970 格式化</a>
+                    </li>
+                    <li>
+                        <a data-toggle="tab" href="#tab-single-9970">9970 狀態查詢</a>
+                    </li>
+                </ul>
+
+                <!-- Tab 內容 -->
+                <div class="tab-content" style="margin-top:15px;">
+
+                    <!-- ===============================
+                         Tab1：多項 9970 格式化
+                    ================================ -->
+                    <div id="tab-batch-9970" class="tab-pane fade in active">
+
+                        <div class="result-wrapper">
+                            <!-- 輸入 -->
+                            <div class="result-row">
+                                <div class="result-label">原始資料輸入</div>
+                                <textarea id="input_value"
+                                          class="result-text"
+                                          style="height:130px; resize:none;"></textarea>
+                            </div>
+
+                            <!-- 輸出（可點整列複製） -->
+                            <div class="result-row" onclick="copyByRow(this)">
+                                <div class="result-label">格式化後 JSON</div>
+                                <textarea id="output_value"
+                                          class="result-text"
+                                          style="height:130px; resize:none;"></textarea>
+                            </div>
+                        </div>
+
+                        <div id="count_area"
+                             style="margin-top:10px; font-size:15px; color:#c9d1d9;"></div>
+
+                        <!-- 使用說明 -->
+                        <div class="info-section">
+                            <h4>使用說明｜多筆 9970 格式化</h4>
+                            <p>
+                                1️⃣ 將 <strong>9970 卡號資料</strong> 貼到「原始資料輸入」<br>
+                                資料雜亂、非卡號文字、甚至整個表格貼上幾乎都可以自動格式化！
+                            </p>
+                            <p>
+                                2️⃣ 系統會自動整理為 JSON 格式，例如：<br>
+                                <code>"12345678","87654321"</code>
+                            </p>
+                            <p>
+                                3️⃣ <strong>點整列或按「複製 JSON」即可複製</strong>
+                            </p>
+                        </div>
+
+                    </div>
+
+                    <!-- ===============================
+                         Tab2：單筆 9970 狀態查詢
+                    ================================ -->
+                    <div id="tab-single-9970" class="tab-pane fade">
+
+                        <!-- 查詢區 -->
+                        <div class="panel-heading form-inline"
+                             id="cards-form"
+                             style="background:transparent; border:none; padding-left:0;">
+                            <label for="card_no">外觀卡號</label>
+                            <input type="text" id="card_no" class="form-control" autocomplete="off">
+                            <button type="button" id="find" class="btn btn-primary">查找</button>
+                        </div>
+
+                        <!-- 結果區 -->
+                        <div class="result-wrapper" style="margin-top:10px;">
+
+                            <div class="result-row" onclick="copyByRow(this)">
+                                <div class="result-label">外觀卡號</div>
+                                <div class="result-text" id="change_card_no"></div>
+                            </div>
+
+                            <div class="result-row" onclick="copyByRow(this)">
+                                <div class="result-label">9970 狀態</div>
+                                <div class="result-text" id="change_card_status"></div>
+                            </div>
+
+                            <div class="info-section">
+                                <h4>使用說明｜單筆查詢</h4>
+                                <p>
+                                    輸入一筆 <strong>外觀卡號</strong>，點「查找」或按 Enter。<br>
+                                    查詢結果可 <strong>直接點整列複製</strong>，方便貼到客服回覆或紀錄。
+                                </p>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div> <!-- /tab-content -->
+
+            </div>
+        </div>
+    </div>
+</div>

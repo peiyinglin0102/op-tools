@@ -1,0 +1,162 @@
+<script src="./battery.js"></script>
+
+<style>
+/* ===============================
+   Result 區塊（貼齊 OP 小工具 2.0）
+=============================== */
+.result-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    background: #1e2730;
+    padding: 12px 15px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.result-row:hover {
+    background: #232f3b;
+    border-color: #4ea5d9;
+}
+
+.result-label {
+    width: 200px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+.result-text {
+    flex: 1;
+    padding: 6px 12px;
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 4px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    font-family: Consolas, monospace;
+    user-select: all;
+}
+
+/* ===============================
+   對齊修正（沿用你原本設定）
+=============================== */
+.container-fluid {
+    padding-left: 0 !important;
+}
+
+.page-header {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+#form_value .form-group {
+    margin-left: 0 !important;
+    margin-top: 20px;
+}
+
+/* ===============================
+   資訊說明區塊（原樣保留）
+=============================== */
+.info-section {
+    margin-top: 10px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.info-section code {
+    background: #0f1418;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #a5e0ff;
+    display: inline-block;
+    margin-top: 5px;
+}
+
+/* ===============================
+   Battery 頁專用：查詢區塊透明化
+=============================== */
+#page-wrapper #form_value.panel-heading {
+    background-color: transparent !important;
+    border: none !important;
+    padding-left: 28px;   /* ← 往右一點 */
+    padding-right: 0;
+}
+</style>
+
+<div id="page-wrapper" class="max-hight">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">電池空值回補</h1>
+        </div>
+
+        <div class="container-fluid">
+            <div class="panel-heading form-inline" id="form_value">
+                <div class="form-group">
+                    <label for="asset_no">外觀車號</label>
+                    <input type="text" id="asset_no" class="form-control" autocomplete="off">
+                    <button type="button" class="btn btn-primary">查詢</button>
+                </div>
+            </div>
+
+            <div class="panel-body card-search-result">
+
+                <div id="result_area" class="result-wrapper">
+
+                    <div class="result-row" onclick="copyByRow(this)">
+                        <div class="result-label">asset_no 外觀車號</div>
+                        <div class="result-text" id="row1_output"></div>
+                    </div>
+
+                    <div class="result-row" onclick="copyByRow(this)">
+                        <div class="result-label">lms_maintain_lists 回補</div>
+                        <div class="result-text" id="row2_output"></div>
+                    </div>
+
+                    <div class="result-row" onclick="copyByRow(this)">
+                        <div class="result-label">battery_id 電池</div>
+                        <div class="result-text" id="row3_output"></div>
+                    </div>
+
+                    <!-- 處理流程說明（保留） -->
+                    <div class="info-section">
+                        <h4>電池空值處理流程</h4>
+
+                        <p><strong>1. 查詢電池單</strong><br>
+                        維調提供 asset_no，於 lms_maintain_lists 查詢該車電池維修單：
+                        <code>{"asset_no":"xxxxxxx","maintain_id":{"$in":[3,4,9]},"bike_type":"02","type_id":4}</code>
+                        </p>
+
+                        <p><strong>2. 查看 Core battery_id</strong><br>
+                        ‧ 有 → 可回補<br>
+                        ‧ 空值 → 請維調重啟車機<br>
+                        （不建議從 webapi.log 取值）
+                        </p>
+
+                        <p><strong>3. 回補至 LMS</strong><br>
+                        <code>{ "asset_no":"xxxxxxx", "process":NumberInt(0), "type_id":NumberInt(4) }</code>
+                        </p>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

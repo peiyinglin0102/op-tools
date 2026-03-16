@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <title>ECC 1512 錯誤碼管理</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="/public/css/bootstrap.min.css">
+
+    <style>
+    /* ===============================
+       ⭐ 版面貼齊 monthly / battery
+    =============================== */
+    .container-fluid {
+        padding-left: 0 !important;
+    }
+
+    .page-header {
+        margin-left: 0;
+        padding-left: 0;
+    }
+
+    /* 查詢區透明化 */
+    #page-wrapper .panel-heading {
+        background-color: transparent !important;
+        border: none !important;
+        padding-left: 28px;
+        padding-right: 0;
+    }
+
+    /* ===============================
+       ⭐ 表格（Monthly / Battery 手感）
+    =============================== */
+    .monthly-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+    }
+
+    .monthly-table th,
+    .monthly-table td {
+        border: 1px solid #30363d;
+        padding: 10px;
+        text-align: center;
+        background: #0d1117;
+        color: #e6edf3;
+    }
+
+    .monthly-table th {
+        background: #1e2730;
+        font-weight: bold;
+    }
+
+    .monthly-table td {
+        cursor: pointer;
+        transition: background-color .2s, box-shadow .2s;
+    }
+
+    .monthly-table td:hover {
+        background: #232f3b;
+        box-shadow: inset 0 0 0 1px #4ea5d9;
+    }
+
+    /* label 白色 */
+    #page-wrapper label[for="err_code_value"] {
+        color: #ffffff;
+    }
+
+    /* ===============================
+       ⭐ 使用說明（同 app_err_code）
+    =============================== */
+    .info-section {
+        margin-bottom: 18px;
+        padding: 18px 20px;
+        background: #162028;
+        border-left: 4px solid #4ea5d9;
+        color: #d8dee9;
+        line-height: 1.6;
+    }
+
+    .info-section h4 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 16px;
+        color: #ffffff;
+    }
+    </style>
+</head>
+
+<body>
+
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">ECC 1512 錯誤碼管理</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="app" class="container-fluid">
+
+            <div class="panel panel-info">
+
+                <!-- ⭐ 查詢 / 操作列（功能不動） -->
+                <div class="panel-heading form-inline"
+                     style="display:flex; gap:10px; align-items:center;">
+
+                    <div class="form-group">
+                        <label for="err_code_value">錯誤碼:</label>
+                        <input type="text"
+                               id="err_code_value"
+                               class="form-control"
+                               autocomplete="off">
+                    </div>
+
+                    <button id="btnAdd" class="btn btn-success">新增</button>
+                    <button id="btnUpdate" class="btn btn-warning">修改</button>
+                    <button id="btnDelete" class="btn btn-danger">刪除</button>
+                </div>
+
+                <div class="panel-body card-search-result">
+
+                    <!-- ⭐ 使用說明 -->
+                    <div class="info-section">
+                        <h4>使用說明</h4>
+                        <p>1. 可於上方輸入 <strong>錯誤碼</strong> 進行查詢。</p>
+                        <p>2. 點擊「<strong>新增</strong>」可建立新的 ECC 1512 錯誤碼。</p>
+                        <p>3. 請於輸入框填入欲操作的 <strong>錯誤碼</strong> 再進行修改或刪除。</p>
+                        <p>4. 表格中 <strong>每一格皆可單獨點擊複製</strong>。</p>
+                    </div>
+
+                    <!-- ⭐ 表格 -->
+                    <table class="monthly-table">
+                        <thead>
+                            <tr>
+                                <th>錯誤碼</th>
+                                <th>錯誤訊息</th>
+                            </tr>
+                        </thead>
+                        <tbody id="err_code"></tbody>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./ecc1512Code.js"></script>
+</body>
+</html>

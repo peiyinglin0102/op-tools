@@ -1,0 +1,21 @@
+version: "3"
+services:
+  op-tool-node-frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: op-tool-dev
+    restart: always
+    working_dir: /var/www/op-tool/html
+    command: npm start
+    env_file:
+      - ./.env
+    volumes:
+      - ./logs:/var/logs
+      - ./.env:/var/www/op-tool/html/.env:ro
+
+
+networks:
+  default:
+    external:
+      name: docker_default

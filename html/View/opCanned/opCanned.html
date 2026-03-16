@@ -1,0 +1,641 @@
+<script src="./opCanned.js"></script>
+
+<style>
+/* ===============================
+   全域變數
+=============================== */
+:root {
+    --bg-dark: #162028;
+    --panel-bg: #1e2730;
+    --panel-hover: #232f3b;
+    --border: #30363d;
+    --text-main: #e6edf3;
+    --text-muted: #8b949e;
+    --accent: #58a6ff;
+    --accent-bg: rgba(88, 166, 255, 0.1);
+    --danger: #ff6b81;
+    --success: #238636;
+    --input-bg: #0d1117;
+}
+
+#page-wrapper .panel-heading {
+    background-color: transparent !important;
+    border: none !important;
+    padding-left: 28px;
+}
+
+/* ===============================
+   三欄式佈局
+=============================== */
+.opc-layout {
+    display: flex;
+    height: calc(100vh - 200px);
+    min-height: 600px;
+    background: #161b22;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* 左側：分類 */
+.opc-sidebar {
+    width: 240px;
+    background: #0d1117;
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+/* 中間：列表 */
+.opc-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #161b22;
+    min-width: 0;
+    border-right: 1px solid var(--border);
+}
+
+/* 右側：編輯區 */
+.opc-editor {
+    width: 350px;
+    background: #1c2128;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    z-index: 10;
+}
+
+/* Headers */
+.opc-sidebar-header,
+.opc-editor-header {
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border);
+    background: #21262d;
+    height: 55px;
+    flex-shrink: 0;
+}
+.opc-sidebar-header span,
+.opc-editor-header span {
+    font-weight: 600;
+    color: var(--text-main);
+    font-size: 14px;
+}
+
+/* Scroll Areas */
+#categoryList,
+#itemList,
+.opc-editor-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+}
+.opc-editor-body {
+    padding: 20px;
+}
+
+/* Footers */
+.opc-editor-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    background: #21262d;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+/* 分類列表樣式 */
+#btnAddCategory {
+    font-size: 12px;
+    padding: 4px 10px;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+#btnAddCategory:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+#categoryList {
+    padding: 10px;
+    list-style: none;
+    margin: 0;
+}
+
+#categoryList li {
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    font-size: 13px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    border-left: 3px solid transparent;
+    user-select: none;
+}
+#categoryList li:hover {
+    background: var(--panel-bg);
+    color: var(--text-main);
+}
+#categoryList li.active {
+    background: var(--accent-bg);
+    color: var(--accent);
+    border-left-color: var(--accent);
+}
+#categoryList li span.count {
+    font-size: 11px;
+    background: rgba(110, 118, 129, 0.4);
+    padding: 2px 6px;
+    border-radius: 10px;
+    color: var(--text-main);
+}
+#categoryList li.active .count {
+    background: var(--accent);
+    color: #fff;
+}
+
+/* 分類拖曳視覺效果 */
+#categoryList li.dragging {
+    opacity: 0.5;
+}
+#categoryList li.drag-over {
+    outline: 1px dashed var(--accent);
+    background: var(--panel-hover);
+}
+
+/* Toolbar */
+.opc-toolbar {
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border);
+    background: #161b22;
+    min-height: 55px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+.opc-toolbar h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-main);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.category-actions {
+    display: inline-flex;
+    gap: 6px;
+}
+.category-actions .opc-btn-small {
+    padding: 4px 8px;
+    font-size: 12px;
+}
+
+#opcSearchInput {
+    width: 200px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text-main);
+    padding: 6px 12px;
+    font-size: 13px;
+}
+#opcSearchInput:focus {
+    border-color: var(--accent);
+    outline: none;
+}
+
+.opc-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 排序按鈕 */
+.opc-sort-group {
+    display: flex;
+    gap: 4px;
+}
+.opc-sort-btn {
+    font-size: 11px;
+    padding: 4px 8px;
+}
+.opc-sort-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(88, 166, 255, 0.12);
+}
+
+/* 卡片樣式 */
+.opc-item-card {
+    position: relative;
+    background: #161b22;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    user-select: none;
+}
+.opc-item-card:hover {
+    border-color: var(--accent);
+    transform: translateX(2px);
+}
+.opc-item-card.copied {
+    border-color: var(--success);
+}
+.opc-item-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 6px;
+    padding-right: 90px; /* 留空給右上角按鈕 */
+}
+.opc-item-content {
+    font-size: 13px;
+    line-height: 1.5;
+    color: var(--text-main);
+    white-space: pre-wrap;
+    cursor: pointer;
+    padding: 6px;
+    border-radius: 4px;
+    position: relative;
+}
+.opc-item-content:hover {
+    background: rgba(88, 166, 255, 0.05);
+}
+.opc-item-content:hover::after {
+    content: "點擊複製";
+    position: absolute;
+    right: 8px;
+    top: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 5px;
+    border-radius: 3px;
+    pointer-events: none;
+}
+.opc-empty-tip {
+    text-align: center;
+    margin-top: 60px;
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+/* 卡片右上角操作按鈕 */
+.opc-item-actions {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    gap: 4px;
+}
+.opc-item-actions .opc-btn {
+    padding: 2px 8px;
+    font-size: 11px;
+}
+
+/* 罐頭拖曳視覺效果 */
+.opc-item-card.dragging {
+    opacity: 0.5;
+}
+.opc-item-card.drag-over {
+    outline: 1px dashed var(--accent);
+    background: #1c2330;
+}
+
+/* 表單 */
+.opc-form-group {
+    margin-bottom: 15px;
+}
+.opc-form-group label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 6px;
+    color: #8b949e;
+    font-weight: 600;
+}
+.opc-form-group input,
+.opc-form-group select,
+.opc-form-group textarea {
+    width: 100%;
+    border-radius: 6px;
+    border: 1px solid #30363d;
+    background: #0d1117;
+    color: #e6edf3;
+    padding: 8px 10px;
+    font-size: 13px;
+    transition: border 0.2s;
+}
+.opc-form-group input:focus,
+.opc-form-group select:focus,
+.opc-form-group textarea:focus {
+    border-color: #58a6ff;
+    outline: none;
+}
+.opc-form-group.full-height {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+/* 調大「回覆內容」編輯區高度 */
+.opc-form-group.full-height textarea {
+    flex: 1;
+    min-height: 280px;
+    resize: vertical;
+}
+
+/* 按鈕 */
+.opc-btn {
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: #21262d;
+    color: var(--text-main);
+    font-size: 13px;
+    padding: 6px 14px;
+    cursor: pointer;
+    font-weight: 500;
+}
+.opc-btn:hover:not(:disabled) {
+    background: #30363d;
+}
+.opc-btn-primary {
+    border-color: rgba(240, 246, 252, 0.1);
+    background: var(--success);
+    color: #fff;
+}
+.opc-btn-primary:hover:not(:disabled) {
+    background: #2ea043;
+}
+.opc-btn-danger {
+    color: var(--danger);
+    background: transparent;
+}
+.opc-btn-danger:hover:not(:disabled) {
+    background: #a40e26;
+    color: #fff;
+    border-color: transparent;
+}
+.opc-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* RWD */
+@media (max-width: 992px) {
+    .opc-layout {
+        flex-direction: column;
+        height: auto;
+    }
+    .opc-sidebar {
+        width: 100%;
+        height: 200px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+    .opc-content {
+        width: 100%;
+        height: 400px;
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+    .opc-editor {
+        width: 100%;
+        height: auto;
+    }
+    .opc-editor-body {
+        height: auto;
+    }
+    .opc-form-group textarea {
+        min-height: 150px;
+    }
+}
+
+/* 分類 Modal */
+.opc-modal-backdrop {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    background: rgba(0, 0, 0, 0.75);
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    z-index: 10000;
+    transition: opacity 0.2s ease;
+}
+.opc-modal-backdrop.show {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+.opc-modal {
+    background: #1c2128;
+    border-radius: 12px;
+    border: 1px solid #444c56;
+    width: 400px;
+    max-width: 90%;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.8);
+    transform: scale(0.95);
+    transition: transform 0.2s;
+}
+.opc-modal-backdrop.show .opc-modal {
+    transform: scale(1);
+}
+.opc-modal h3 {
+    margin: 0;
+    padding: 15px 20px;
+    font-size: 16px;
+    color: #fff;
+    border-bottom: 1px solid var(--border);
+    background: #21262d;
+    border-radius: 12px 12px 0 0;
+}
+.opc-modal-body {
+    padding: 20px;
+}
+.opc-modal-footer {
+    padding: 15px 20px;
+    border-top: 1px solid var(--border);
+    background: #21262d;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    border-radius: 0 0 12px 12px;
+}
+.opc-item-meta {
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: right;
+}
+
+</style>
+
+<div id="page-wrapper" class="max-hight">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">罐頭工廠</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="opc-layout">
+                <!-- 左側：分類 -->
+                <aside class="opc-sidebar">
+                    <div class="opc-sidebar-header">
+                        <span><i class="fa fa-folder"></i> 分類</span>
+                        <button id="btnAddCategory" class="opc-btn" title="新增分類">＋</button>
+                    </div>
+                    <ul id="categoryList"></ul>
+                </aside>
+
+                <!-- 中間：列表 -->
+                <section class="opc-content">
+                    <div class="opc-toolbar">
+                        <div class="opc-toolbar-header" style="flex:1;">
+                            <h3>
+                                <span id="currentCategoryName">請選擇分類</span>
+                                <div class="category-actions">
+                                    <button
+                                        id="btnRenameCategory"
+                                        class="opc-btn opc-btn-small"
+                                        disabled
+                                        title="重新命名分類"
+                                    >
+                                        <i class="fa fa-edit"></i> 改名
+                                    </button>
+                                    <button
+                                        id="btnDeleteCategory"
+                                        class="opc-btn opc-btn-danger opc-btn-small"
+                                        disabled
+                                        title="刪除此分類"
+                                    >
+                                        <i class="fa fa-trash"></i> 刪除
+                                    </button>
+                                </div>
+                            </h3>
+                        </div>
+                        <div class="opc-toolbar-actions">
+                            <input
+                                type="text"
+                                id="opcSearchInput"
+                                placeholder="搜尋..."
+                                autocomplete="off"
+                            >
+                            <div class="opc-sort-group">
+                                <button
+                                    id="btnSortTimeAsc"
+                                    class="opc-btn opc-sort-btn"
+                                    title="依時間由舊到新排序"
+                                >
+                                    ↑ 舊→新
+                                </button>
+                                <button
+                                    id="btnSortTimeDesc"
+                                    class="opc-btn opc-sort-btn active"
+                                    title="依時間由新到舊排序"
+                                >
+                                    ↓ 新→舊
+                                </button>
+                            </div>
+                            <button id="btnAddItem" class="opc-btn opc-btn-primary" disabled>
+                                ＋ 新增
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="itemList">
+                        <div class="opc-empty-tip">← 請先從左側選擇一個分類</div>
+                    </div>
+                </section>
+
+                <!-- 右側：編輯區 -->
+                <aside class="opc-editor">
+                    <div class="opc-editor-header">
+                        <span id="editorTitle"><i class="fa fa-plus-circle"></i> 新增罐頭</span>
+                    </div>
+
+                    <div class="opc-editor-body">
+                        <div class="opc-form-group">
+                            <label for="itemCategorySelect">所屬分類</label>
+                            <select id="itemCategorySelect"></select>
+                        </div>
+                        <div class="opc-form-group">
+                            <label for="itemTitleInput">標題 (Title)</label>
+                            <input
+                                type="text"
+                                id="itemTitleInput"
+                                placeholder="例如：已綁卡失敗"
+                            >
+                        </div>
+                        <div class="opc-form-group full-height">
+                            <label for="itemContentInput">回覆內容 (Content)</label>
+                            <textarea
+                                id="itemContentInput"
+                                placeholder="輸入完整的客服回覆內容..."
+                            ></textarea>
+                        </div>
+                    </div>
+
+                    <div class="opc-editor-footer">
+                        <button id="btnItemCancel" class="opc-btn">重置</button>
+                        <button id="btnItemSave" class="opc-btn opc-btn-primary">儲存</button>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-12">
+            <div class="opc-info-section" style="margin-top: 15px;">
+                <h4><i class="fa fa-info-circle"></i> 操作說明</h4>
+                <p>．左側選擇分類，中間選擇罐頭，右側即可直接編輯內容。</p>
+                <p>．點擊「＋新增」或「重置」按鈕，右側欄位會清空，填寫後按儲存即可新增。</p>
+                <p>．中間卡片點擊內容可直接複製，右上角可編輯 / 刪除罐頭。</p>
+                <p>．左側分類可以拖曳排序，中間罐頭卡片也可以拖曳排序。</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 分類 Modal -->
+<div id="categoryModalBackdrop" class="opc-modal-backdrop">
+    <div class="opc-modal" onclick="event.stopPropagation()">
+        <h3 id="categoryModalTitle">新增分類</h3>
+        <div class="opc-modal-body">
+            <div class="opc-form-group">
+                <label for="categoryNameInput">分類名稱</label>
+                <input
+                    type="text"
+                    id="categoryNameInput"
+                    placeholder="例如：帳務問題"
+                >
+            </div>
+        </div>
+        <div class="opc-modal-footer">
+            <button id="btnCategoryCancel" class="opc-btn">取消</button>
+            <button id="btnCategorySave" class="opc-btn opc-btn-primary">儲存</button>
+        </div>
+    </div>
+</div>

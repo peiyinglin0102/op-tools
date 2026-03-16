@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>API Log 解析工具</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/2.6.14/vue.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+/* 完全保留您的配色 */
+body {background-color: #0b1620;color: #d4d4d4;font-family: "Microsoft JhengHei", sans-serif;}
+.container-fluid { padding-left: 0 !important; }
+.page-header { margin-left: 0; padding-left: 0; }
+.parser-wrapper { display:flex; flex-direction:column; gap:14px; margin-top:10px; }
+.raw-panel { background:#161b22; border:1px solid #30363d; border-radius:6px; }
+.raw-header { padding:8px 12px; background:#0d1117; border-bottom:1px solid #30363d; display:flex; justify-content:space-between; align-items:center; color:#8b949e; font-weight:600; }
+.raw-textarea { width:100%; height:260px; background:#0d1117; color:#f8fcff; border:none; padding:14px; font-family:'Fira Code',monospace; font-size:13px; resize:vertical; outline:none; line-height:1.6; }
+.result-panel { background:#161b22; border:1px solid #30363d; border-radius:6px; }
+.toolbar { padding:8px 12px; background:#0d1117; border-bottom:1px solid #30363d; display:flex; align-items:center; gap:10px; }
+.search-input { background:#21262d; border:1px solid #30363d; color:#c9d1d9; padding:5px 10px; border-radius:4px; font-size:14px; width:260px; }
+.log-list { padding:12px; background:#0d1117; max-height:520px; overflow-y:auto; }
+.log-card { background:#161b22; border:1px solid #30363d; border-radius:6px; margin-bottom:10px; }
+.card-header { padding:8px 12px; background:#21262d; display:flex; align-items:center; gap:10px; cursor:pointer; }
+.badge { padding:2px 8px; border-radius:12px; font-size:12px; font-weight:bold; }
+.badge.success { background:rgba(46,160,67,.2); color:#3fb950; }
+.badge.error { background:rgba(218,54,51,.2); color:#f85149; }
+.method { width:50px; color:#79c0ff; font-weight:bold; font-family:'Fira Code',monospace; }
+.route { color:#e6edf3; font-family:'Fira Code',monospace; font-size:13px; }
+.err-desc { margin-left:auto; color:#ff7b72; font-size:12px; }
+.card-body { display:none; background:#0d1117; border-top:1px solid #30363d; }
+.card-body.open { display:block; }
+.code-block { padding:12px 14px; border-bottom:1px solid #21262d; font-family:'Fira Code',monospace; font-size:13px; background-color: #0b1620; }
+pre { margin:0; white-space:pre-wrap; background-color: #0d1117 !important; color: #e6edf3 !important; padding: 12px; border-radius: 4px; border: 1px solid #30363d; }
+.jv-key { color:#79c0ff; }
+.jv-string { color:#a5d6ff; }
+.jv-number { color:#d2a8ff; }
+.jv-boolean,.jv-null { color:#ff7b72; }
+.btn { background:#21262d; border:1px solid #30363d; color:#c9d1d9; padding:4px 10px; border-radius:4px; cursor:pointer; }
+.btn:hover { background:#30363d; }
+/* 卡片右側：log 檔名來源 */
+.log-source {
+    font-size: 12px;
+    color: #9badc1;
+    font-family: 'Fira Code', monospace;
+    white-space: nowrap;
+    opacity: 0.9;
+}
+/* ===============================
+   使用說明區（沿用 getTempformat/battery 樣式）
+=============================== */
+.info-section {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.info-section code {
+    background: #0f1418;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #a5e0ff;
+}
+
+</style>
+</head>
+
+<body>
+<div id="page-wrapper" class="max-hight">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">Web Log 解析工具</h1>
+        </div>
+    </div>
+
+    <div id="app-parser" class="container-fluid" v-cloak>
+        <div class="parser-wrapper">
+            <div class="raw-panel">
+                <div class="raw-header">
+                    原始日誌
+                    <button class="btn" @click="clearLogs">清空</button>
+                </div>
+                <textarea class="raw-textarea"
+                    v-model="rawLog"
+                    @input="onInputLog"
+                    placeholder="貼上Log">
+                </textarea>
+            </div>
+
+            <div class="toolbar">
+                <input class="search-input" v-model="filterText" placeholder="搜尋 API / 關鍵字 / 錯誤碼">
+
+                <!-- ⭐ 展開 / 收合 Error -->
+                <button class="btn" @click="toggleAllError">
+                    {{ parsedLogs.length === 0
+                        ? '展開全部 Error'
+                        : (allErrorOpen ? '收合全部 Error' : '展開全部 Error')
+                    }}
+                </button>
+
+                <!-- ⭐ 全部展開 / 收合 -->
+                <button class="btn" @click="toggleAll">
+                    {{ allOpen ? '全部收合' : '全部展開' }}
+                </button>
+
+                <span style="margin-left:auto;font-size:13px;">
+                    共 {{ filteredLogs.length }} 筆
+                </span>
+            </div>
+
+
+                <div class="log-list">
+                    <div v-for="(log, index) in filteredLogs" :key="index" class="log-card">
+<div class="card-header" @click="toggleCard(log)">
+    <span class="badge" :class="log.isError ? 'error':'success'">
+        {{ log.isError ? 'ERROR':'OK' }}
+    </span>
+
+    <span class="method">{{ log.method }}</span>
+
+    <span class="route">{{ log.route_display }}</span>
+
+    <!-- ⭐ 新增：來源檔名（靠右） -->
+    <span
+        v-if="log.source"
+        class="log-source">
+        {{ log.source }}
+    </span>
+
+    <span class="err-desc" v-if="log.isError">
+        {{ log.errCode }} {{ log.errDesc }}
+    </span>
+</div>
+
+
+                        <div class="card-body" :class="{open:log.isOpen}">
+                            <div class="code-block" v-if="log.request">
+                                <strong style="color:#8b949e; display:block; margin-bottom:8px;">Request Payload</strong>
+                                <div v-html="renderBlock(log.request)"></div>
+                            </div>
+                            <div class="code-block" v-if="log.response">
+                                <strong style="color:#8b949e; display:block; margin-bottom:8px;">Response Data</strong>
+                                <div v-html="renderBlock(log.response)"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ===============================
+     使用說明區（沿用 getTempformat 樣式）
+=============================== -->
+<div class="info-section">
+    <h4>使用說明｜API Log 解析工具</h4>
+
+    <p>
+        1️⃣ 將 <strong>原始 Log</strong> 貼到上方「原始日誌」輸入框。<br>
+         支援自動排除Linux查詢指令，系統只會抓出 JSON 區段解析。
+    </p>
+
+    <p>
+        2️⃣ 解析成功後會自動產生卡片列表：<br>
+        ・綠色 <strong>OK</strong>：通常代表狀態正常<br>
+        ・紅色 <strong>ERROR</strong>：偵測到錯誤狀態（例如 HTTP status ≥ 400、retCode=0、或有 errCode）
+    </p>
+
+    <p>
+        3️⃣ 操作方式：<br>
+        ・點卡片標題列可 <strong>展開/收合</strong> Request / Response<br>
+        ・可用上方搜尋框搜尋：API 名稱、路由、錯誤碼等內容<br>
+        ・<strong>展開全部 Error</strong>：只展開錯誤卡片<br>
+        ・<strong>全部展開</strong>：一次展開所有卡片
+    </p>
+
+    <p>
+        4️⃣ 右側顯示的檔名來源<br>
+        <code>範例：apilog_2025-10-09-13:00:00.log... {JSON}</code><br>
+        系統會把 JSON 前面的內容當成來源，顯示在卡片右側。
+    </p>
+</div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="./apiLogParser.js"></script>
+</body>
+</html>

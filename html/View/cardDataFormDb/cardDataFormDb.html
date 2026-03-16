@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <meta charset="UTF-8" />
+    <title>卡號搜尋</title>
+
+    <script src="./cardDataFormDb.js"></script>
+
+    <style>
+    /* ===============================
+       ⭐ 共用基礎（對齊 monthly / battery）
+    =============================== */
+    .container-fluid { padding-left: 0 !important; }
+    .page-header { margin-left: 0; padding-left: 0; }
+
+    /* ===============================
+       ⭐ 查詢區（與 monthly 完全一致）
+    =============================== */
+    #page-wrapper #form_value.panel-heading {
+        background-color: transparent !important;
+        border: none !important;
+        padding-left: 28px;
+        padding-right: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+    }
+
+    #form_value label {
+        margin-right: 8px;
+        font-weight: 600;
+        color: #e6edf3;
+    }
+
+    #form_value .form-control {
+        width: 240px;
+        background: #0d1117;
+        color: #e6edf3;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+    }
+
+    #form_value .btn {
+        border-radius: 8px;
+        font-weight: 700;
+        letter-spacing: .2px;
+    }
+
+    .btn-secondary {
+        background: #30363d;
+        border: 1px solid #30363d;
+        color: #e6edf3;
+    }
+    .btn-secondary:hover { filter: brightness(1.06); }
+
+    /* ===============================
+       ⭐ 主體：兩欄（解析 / 原始JSON）
+    =============================== */
+    .compare-wrapper {
+        display: flex;
+        gap: 0;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    /* ===============================
+       ⭐ 左側：解析結果（好讀）
+    =============================== */
+    .parsed-panel {
+        width: 50%;
+        background: #0d1117;
+        border-right: 1px solid #30363d;
+        display: flex;
+        flex-direction: column;
+    }
+    .parsed-panel .panel-title {
+        padding: 12px 14px;
+        border-bottom: 1px solid #30363d;
+        font-weight: 800;
+        color: #ffffff;
+        background: #0b1620;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+    }
+    .parsed-panel .panel-title .hint {
+        font-weight: 600;
+        color: #9fb3c8;
+        font-size: 12px;
+    }
+    .parsed-list {
+        padding: 10px 12px;
+        overflow: auto;
+        height: 579px;
+        box-sizing: border-box;
+    }
+
+    /* ✅ 每張卡片可點擊複製 */
+    .kv-row {
+        display: grid;
+        grid-template-columns: 140px 1fr;
+        gap: 10px;
+        padding: 10px 12px;
+        border: 1px solid #30363d;
+        border-radius: 10px;
+        margin-bottom: 10px;
+        background: #0b1620;
+        transition: transform .12s, border-color .12s, background .12s;
+        cursor: pointer;
+        position: relative;
+        user-select: none;
+    }
+    .kv-row:hover {
+        border-color: #4ea5d9;
+        transform: translateY(-1px);
+        background: #0e1b26;
+    }
+    .kv-row:active { transform: translateY(0); }
+
+    .kv-key {
+        color: #c9d1d9;
+        font-weight: 900;
+        font-family: "Fira Code", Consolas, Monaco, monospace;
+        font-size: 12px;
+        opacity: .95;
+        white-space: nowrap;
+    }
+    .kv-val {
+        color: #e6edf3;
+        font-family: Consolas, Monaco, monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        word-break: break-all;
+    }
+    .kv-sub {
+        grid-column: 1 / -1;
+        color: #9fb3c8;
+        font-size: 12px;
+        line-height: 1.5;
+        margin-top: 2px;
+    }
+
+    .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 900;
+        margin-right: 8px;
+        border: 1px solid #30363d;
+        background: #0d1117;
+        color: #e6edf3;
+        vertical-align: middle;
+    }
+    .pill-ok { border-color: rgba(46,160,67,.55); }
+    .pill-bad { border-color: rgba(218,54,51,.55); }
+
+    .copy-hint {
+        position: absolute;
+        top: 10px;
+        right: 12px;
+        font-size: 11px;
+        color: #9fb3c8;
+        opacity: 0;
+        transition: opacity .12s;
+        pointer-events: none;
+    }
+    .kv-row:hover .copy-hint { opacity: 1; }
+
+    /* ===============================
+       ⭐ 右側：原始 JSON
+    =============================== */
+    .json-panel {
+        width: 50%;
+        background: #0d1117;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+    }
+    .json-panel .panel-title {
+        padding: 12px 14px;
+        border-bottom: 1px solid #30363d;
+        font-weight: 800;
+        color: #ffffff;
+        background: #0b1620;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    #outJson {
+        width: 100%;
+        height: 579px;
+        background: #0d1117;
+        color: #e6edf3;
+        border: none;
+        padding: 16px;
+        font-family: Consolas, Monaco, monospace;
+        font-size: 13px;
+        line-height: 1.4;
+        resize: none;
+        box-sizing: border-box;
+    }
+
+    /* ===============================
+       ⭐ 使用說明（與 monthly 一樣）
+    =============================== */
+    .info-section {
+        margin-top: 18px;
+        padding: 18px 20px;
+        background: #162028;
+        border-left: 4px solid #4ea5d9;
+        color: #d8dee9;
+        line-height: 1.6;
+        border-radius: 10px;
+    }
+    .info-section h4 {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 16px;
+        color: #ffffff;
+        font-weight: 900;
+    }
+    .muted { color: #9fb3c8; }
+    </style>
+</head>
+
+<body>
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">卡號搜尋</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div id="app" class="container-fluid">
+
+            <!-- ⭐ 查詢區 -->
+            <div class="panel-heading form-inline" id="form_value">
+                <div class="form-group">
+                    <label for="cardNo">外觀卡號</label>
+                    <input type="text" id="cardNo" class="form-control" autocomplete="off" placeholder="例如：16150057869">
+
+                    <button class="btn btn-primary" id="copy_out_parsed" type="button">複製解析</button>
+                    <button class="btn btn-secondary" id="copy_out_json" type="button">複製 JSON</button>
+                </div>
+                <div class="muted">Enter 送出</div>
+            </div>
+
+            <!-- ⭐ 對照結果 -->
+            <div class="panel-body card-search-result">
+                <div class="compare-wrapper">
+
+                    <!-- 左：解析結果 -->
+                    <div class="parsed-panel">
+                        <div class="panel-title">
+                            <div>
+                                <div>解析結果</div>
+                                <div class="hint">順序與原始 JSON 一致｜點任一張卡片可複製該值</div>
+                            </div>
+                        </div>
+                        <div id="parsedList" class="parsed-list"></div>
+                    </div>
+
+                    <!-- 右：JSON -->
+                    <div class="json-panel">
+                        <div class="panel-title">
+                            <span>原始 JSON</span>
+                        </div>
+                        <textarea id="outJson" readonly></textarea>
+                    </div>
+
+                </div>
+
+                <!-- ⭐ 使用說明 -->
+                <div class="info-section">
+                    <h4>使用說明</h4>
+                    <p>1. 請輸入 <strong>外觀卡號</strong>（例如：16150057869），系統會自動查詢。</p>
+                    <p>2. 左側是 <strong>解析後好讀資訊</strong>（順序跟 JSON 一樣）。</p>
+                    <p>3. <strong>點擊任一卡片</strong>會複製該卡片的「值」。</p>
+                    <p>4. 上方可一鍵「<strong>複製解析</strong>」或「<strong>複製 JSON</strong>」。</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

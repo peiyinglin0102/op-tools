@@ -1,0 +1,35 @@
+stages:
+  - deploy
+
+# 定義一個名為 'deploy_staging' 的工作 (Job)
+deploy_staging:
+  stage: deploy
+  image: alpine:latest # 使用 Alpine 作為基礎映像
+  before_script:
+    - apk add openssh-client
+    - eval $(ssh-agent -s) # 啟動 SSH 代理
+    # 將 Base64 編碼的私鑰解碼到一個臨時檔案
+    - mkdir -p /tmp/.ssh
+    - chmod 700 /tmp/.ssh
+    - echo "$SSH_PRIVATE_KEY" | base64 -d > /tmp/.ssh/id_rsa_ci
+    - chmod 600 /tmp/.ssh/id_rsa_ci # 設定正確的檔案權限
+    - ssh-add /tmp/.ssh/id_rsa_ci # 將私鑰加入 ssh-agent
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan -H example.com >> ~/.ssh/known_hosts # 將部署伺服器的指紋加入已知主機
+    - chmod 644 ~/.ssh/known_hosts
+  script:
+    - echo "Deploying to staging environment..."
+    - | # 使用多行腳本以保持清晰
+      ssh deploy_user@example.com << EOF # 請替換為您的 SSH 使用者名稱和部署伺服器 IP/域名
+        cd /var/www/op-tool # 請替換為專案在遠端主機上的路徑
+        git pull origin main # 假設遠端專案需要更新程式碼
+        docker-compose build
+        docker-compose up -d # 可選：建置後啟動服務
+      EOF
+    - echo "Deployment to staging environment complete."
+  environment:
+    name: staging # 定義環境名稱，有助於追蹤部署
+    url: https://dev-tool.example.com/ # 環境的 URL (可選)
+  only:
+    - main # 只有當程式碼被推送到 'main' 分支時才執行此部署工作

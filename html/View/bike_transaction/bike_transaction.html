@@ -1,0 +1,193 @@
+<script src="./bike_transaction.js"></script>
+
+<style>
+/* ===============================
+   表單區（貼齊 OP 小工具 2.0）
+=============================== */
+.form-area {
+    max-width: 1000px;
+    margin-left: 28px;
+}
+
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.form-row label {
+    width: 80px;
+    color: #c9d1d9;
+    font-weight: 600;
+}
+
+.form-row .form-control {
+    flex: 1;
+}
+
+/* ===============================
+   Result 區塊（完全比照 battery）
+=============================== */
+.result-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.result-row {
+    display: flex;
+    align-items: center;
+    background: #1e2730;
+    padding: 12px 15px;
+    border: 1px solid #30363d;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+.result-row:hover {
+    background: #232f3b;
+    border-color: #4ea5d9;
+}
+
+.result-label {
+    width: 180px;
+    font-weight: 600;
+    color: #c9d1d9;
+}
+
+.result-text {
+    flex: 1;
+    padding: 6px 12px;
+    background: #0d1117;
+    color: #e6edf3;
+    border-radius: 4px;
+    min-height: 32px;
+    display: flex;
+    align-items: center;
+    font-family: Consolas, monospace;
+    user-select: all;
+    white-space: pre-wrap;   /* ⭐ 保留換行 */
+}
+
+/* ===============================
+   說明區塊（info-section）
+=============================== */
+.info-section {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.7;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+
+.info-section code {
+    background: #0f1418;
+    padding: 3px 6px;
+    border-radius: 3px;
+    color: #a5e0ff;
+    display: inline-block;
+    margin-top: 6px;
+}
+</style>
+
+<div id="page-wrapper" class="max-hight">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">掛欠費格式</h1>
+        </div>
+    </div>
+
+    <div class="container-fluid">
+
+        <!-- ===== 表單區 ===== -->
+        <div class="panel-heading form-area" id="full_form">
+
+            <div class="form-row">
+                <label for="tag_data">卡片種類</label>
+                <select id="tag_data" class="form-control">
+                    <option value="">（不指定）</option>
+                    <option value="00">00 一般卡</option>
+                    <option value="01">01 轉乘</option>
+                    <option value="02">02 敬老</option>
+                    <option value="03">03 轉乘+敬老</option>
+                    <option value="04">04 月票</option>
+                    <option value="05">05 轉乘+月票</option>
+                    <option value="08">08 還車不寫卡</option>
+                    <option value="16">16 校園優惠</option>
+                    <option value="32">32 時數卡</option>
+                    <option value="64">64 高雄學生卡</option>
+                    <option value="128">128 騎乘券</option>
+                    <option value="256">256 高雄敬老卡</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label for="flags_rec">卡片狀態</label>
+                <select id="flags_rec" class="form-control">
+                    <option value="4">4 欠費</option>
+                    <option value="0">0 可借車</option>
+                    <option value="1">1 借出未還</option>
+                    <option value="2">2 暫時鎖車</option>
+                    <option value="8">8 臨停中</option>
+                    <option value="16">16 欠費(YB1)</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label for="digestidx">訂單號碼</label>
+                <input type="text" id="digestidx" class="form-control">
+            </div>
+
+            <div class="form-row">
+                <label for="amout_rec">欠款金額</label>
+                <input type="text" id="amout_rec" class="form-control">
+            </div>
+
+            <div class="form-row">
+                <label for="origamt">實付金額</label>
+                <input type="text" id="origamt" class="form-control">
+            </div>
+
+        </div>
+
+        <!-- ===== 結果區 ===== -->
+        <div class="panel-body card-search-result">
+
+            <div class="result-wrapper">
+
+                <div class="result-row" onclick="copyByRow(this)">
+                    <div class="result-label">輸出 JSON</div>
+                    <div class="result-text" id="outJson"></div>
+                </div>
+
+                <!-- ===== 使用說明 ===== -->
+                <div class="info-section">
+                    <h4>掛欠費格式使用說明</h4>
+
+                    <p><strong>1. 選擇卡片種類</strong><br>
+                    可依實際情況指定卡片種類，若不需限制可留空。</p>
+
+                    <p><strong>2. 設定卡片狀態</strong><br>
+                    欠費處理時通常使用 <code>flags_rec : 4</code>。</p>
+
+                    <p><strong>3. 輸入訂單與金額</strong><br>
+                    欠款金額輸入後，實付金額會自動帶入相同數值。</p>
+
+                    <p><strong>4. 點擊結果即可複製</strong><br>
+                    直接點擊「輸出 JSON」區塊，即可複製完整格式貼到系統使用。</p>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>

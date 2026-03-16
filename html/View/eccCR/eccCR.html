@@ -1,0 +1,236 @@
+<script src="./eccCR.js"></script>
+
+<div id="page-wrapper" class="max-hight">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">清分檔工具</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div id="app" class="container-fluid">
+            <div class="panel panel-info" style="border-color: #dddddd">
+                <!-- <form class="panel-heading" id="cards-form"> -->
+                <div class="panel-heading form-inline">
+                    <div class="form-group">
+                        <label for="cr_value">清分檔:</label>
+                        <input type="text" name="cr_value" id="cr_value" class="form-control" value=""
+                            autocomplete="off">
+                    </div>
+                    <button type="button" class="btn btn-primary">讓你按開心的</button>
+                </div>
+                <!-- </form> -->
+
+                <div class="panel-body card-search-result">
+                    <table class="table table-bordered table-striped text-center">
+                        <tbody>
+                            <tr>
+                                <td>卡號(內碼)</td>
+                                <td id="a1"></td>
+                            </tr>
+                            <tr>
+                                <td>卡號長度</td>
+                                <td id="a2"></td>
+                            </tr>
+                            <tr>
+                                <td>PurseVer票卡版號</td>
+                                <td id="a3"></td>
+                            </tr>
+                            <tr>
+                                <td>PID外觀卡號</td>
+                                <td id="a4"></td>
+                            </tr>
+                            <tr>
+                                <td>CTC卡交易號</td>
+                                <td id="a5"></td>
+                            </tr>
+                            <tr>
+                                <td>CardType卡別</td>
+                                <td id="a6"></td>
+                            </tr>
+                            <tr>
+                                <td>PersonalProfile身份別</td>
+                                <td id="a7"></td>
+                            </tr>
+                            <tr>
+                                <td>Device ID舊設備編號</td>
+                                <td id="a8"></td>
+                            </tr>
+                            <tr>
+                                <td>NewDeviceID新設備編號</td>
+                                <td id="a9"></td>
+                            </tr>
+                            <tr>
+                                <td>舊服務業者代碼</td>
+                                <td id="a10"></td>
+                            </tr>
+                            <tr>
+                                <td>新服務業者代碼</td>
+                                <td id="a11"></td>
+                            </tr>
+                            <tr>
+                                <td>舊場站代碼</td>
+                                <td id="a12"></td>
+                            </tr>
+                            <tr>
+                                <td>新場站代碼</td>
+                                <td id="a13"></td>
+                            </tr>
+                            <tr>
+                                <td>IssuerCode</td>
+                                <td id="a14"></td>
+                            </tr>
+                            <tr>
+                                <td>signature KVN票卡簽章金鑰號</td>
+                                <td id="a15"></td>
+                            </tr>
+                            <tr>
+                                <td>TM交易種類</td>
+                                <td id="a16"></td>
+                            </tr>
+                            <tr>
+                                <td>TQ交易屬性</td>
+                                <td id="a17"></td>
+                            </tr>
+                            <tr>
+                                <td>SubAreaCode子區碼</td>
+                                <td id="a18"></td>
+                            </tr>
+                            <tr>
+                                <td style="color: red;">交易前票卡餘額</td>
+                                <td id="a19"></td>
+                            </tr>
+                            <tr>
+                                <td>交易前票卡交易序號</td>
+                                <td id="a20"></td>
+                            </tr>
+                            <tr>
+                                <td>AreaCode區碼</td>
+                                <td id="a21"></td>
+                            </tr>
+                            <tr>
+                                <td style="color: red;">交易金額TXNAMT</td>
+                                <td id="a22"></td>
+                            </tr>
+                            <tr>
+                                <td>BankCode銀行代碼</td>
+                                <td id="a23"></td>
+                            </tr>
+                            <tr>
+                                <td>CPD二代卡防虛擬碼</td>
+                                <td id="a24"></td>
+                            </tr>
+                            <tr>
+                                <td>LastCreditLogp 票卡最後一筆加值記錄</td>
+                                <td id="a25"></td>
+                            </tr>
+                            <tr>
+                                <td>SubType</td>
+                                <td id="a26"></td>
+                            </tr>
+                            <tr>
+                                <td>TSQN</td>
+                                <td id="a27"></td>
+                            </tr>
+                            <tr>
+                                <td style="color: red;">PurseBalance票卡餘額</td>
+                                <td id="a28"></td>
+                            </tr>
+                            <tr>
+                                <td>SIGN</td>
+                                <td id="a29"></td>
+                            </tr>
+                            <tr>
+                                <td>SID SAM ID</td>
+                                <td id="a30"></td>
+                            </tr>
+                            <tr>
+                                <td>MAC</td>
+                                <td id="a31"></td>
+                            </tr>
+                            <tr>
+                                <td>hash type</td>
+                                <td id="a32"></td>
+                            </tr>
+                            <tr>
+                                <td>host admin key kvn</td>
+                                <td id="a33"></td>
+                            </tr>
+                            <tr>
+                                <td>TXNDateTime</td>
+                                <td id="a34"></td>
+                            </tr>
+                            <tr>
+                                <td>扣款種類</td>
+                                <td id="a35"></td>
+                            </tr>
+                            <tr>
+                                <td>腳踏車編號BikeNo</td>
+                                <td id="a36"></td>
+                            </tr>
+                            <tr>
+                                <td>Another EV票卡另一個錢包餘額</td>
+                                <td id="a37"></td>
+                            </tr>
+                            <tr>
+                                <td>MifareSettingParameter</td>
+                                <td id="a38"></td>
+                            </tr>
+                            <tr>
+                                <td>CPU SettingParameter</td>
+                                <td id="a39"></td>
+                            </tr>
+                            <tr>
+                                <td>還車車柱編號PartNo</td>
+                                <td id="a40"></td>
+                            </tr>
+                            <tr>
+                                <td>TSQN of URT前筆轉乘交易序號</td>
+                                <td id="a41"></td>
+                            </tr>
+                            <tr>
+                                <td>TXN Date Time of URT前筆轉乘交易時間</td>
+                                <td id="a42"></td>
+                            </tr>
+                            <tr>
+                                <td>特种票到期日Fare Product Expire Date</td>
+                                <td id="a43"></td>
+                            </tr>
+                            <tr>
+                                <td>特种票票种Fare Product Type</td>
+                                <td id="a44"></td>
+                            </tr>
+                            <tr>
+                                <td>换乘代码Transfer Group Code</td>
+                                <td id="a45"></td>
+                            </tr>
+                            <tr>
+                                <td>新换乘代码New Transfer Group Code</td>
+                                <td id="a46"></td>
+                            </tr>
+                            <tr>
+                                <td>换乘优惠金额Transfer Discount</td>
+                                <td id="a47"></td>
+                            </tr>
+                            <tr>
+                                <td>社福优惠金额 Personal Discount</td>
+                                <td id="a48"></td>
+                            </tr>
+                            <tr>
+                                <td>社福卡免费搭乘累积点数Accumulated Free Rides</td>
+                                <td id="a49"></td>
+                            </tr>
+                            <tr>
+                                <td>借車車柱編號rent_PartNo</td>
+                                <td id="a50"></td>
+                            </tr>
+                            <tr>
+                                <td>Personal Profile Authorization</td>
+                                <td id="a51"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

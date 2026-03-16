@@ -1,0 +1,212 @@
+<script src="./ipassCR.js"></script>
+
+<div id="page-wrapper" class="max-hight">
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">清分檔工具</h1>
+        </div>
+    </div>
+    <div class="row">
+        <div id="app" class="container-fluid">
+            <div class="panel panel-info" style="border-color: #dddddd">
+                <form method="GET" action="#" class="panel-heading" id="cards-form">
+                    <div class="form-inline">
+                        <div class="form-group">
+                            <label for="cr_value">清分檔:</label>
+                            <input type="text" name="cr_value" id="cr_value" class="form-control" value=""
+                                autocomplete="off">
+                        </div>
+                        <button type="button" class="btn btn-primary">讓你按開心的</button>
+                    </div>
+                </form>
+
+                <div class="panel-body card-search-result">
+                    <table class="table table-bordered table-striped text-center">
+                        <tbody>
+                            <tr>
+                                <td>卡號</td>
+                                <td id="a1"></td>
+                            </tr>
+                            <tr>
+                                <td>卡號批號</td>
+                                <td id="a2"></td>
+                            </tr>
+                            <tr>
+                                <td>交易讀寫器編號</td>
+                                <td id="a3"></td>
+                            </tr>
+                            <tr>
+                                <td>電子票值</td>
+                                <td id="a4"></td>
+                            </tr>
+                            <tr>
+                                <td>備份電子票值</td>
+                                <td id="a5"></td>
+                            </tr>
+                            <tr>
+                                <td>同步後電子票值</td>
+                                <td id="a6"></td>
+                            </tr>
+                            <tr>
+                                <td>優惠記名卡身分證字型大小</td>
+                                <td id="a7"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易日期</td>
+                                <td id="a8"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易類別</td>
+                                <td id="a9"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易票值(前筆扣款金額)</td>
+                                <td id="a10"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易後票值(前筆餘額)</td>
+                                <td id="a11"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易系統編號</td>
+                                <td id="a12"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易地點或業者</td>
+                                <td id="a13"></td>
+                            </tr>
+                            <tr>
+                                <td>前筆交易設備編號</td>
+                                <td id="a14"></td>
+                            </tr>
+                            <tr>
+                                <td>同步狀態</td>
+                                <td id="a15"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#1</td>
+                                <td id="a16"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#2</td>
+                                <td id="a17"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#3</td>
+                                <td id="a18"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#4</td>
+                                <td id="a19"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#5</td>
+                                <td id="a20"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#6</td>
+                                <td id="a21"></td>
+                            </tr>
+                            <tr>
+                                <td>轉乘識別群組#7</td>
+                                <td id="a22"></td>
+                            </tr>
+                            <tr>
+                                <td>個人身份別</td>
+                                <td id="a23"></td>
+                            </tr>
+                            <tr>
+                                <td>發卡單位編號</td>
+                                <td id="a24"></td>
+                            </tr>
+                            <tr>
+                                <td>交易金額</td>
+                                <td id="a25"></td>
+                            </tr>
+                            <tr>
+                                <td>交易時間</td>
+                                <td id="a26"></td>
+                            </tr>
+                            <tr>
+                                <td>交易類別</td>
+                                <td id="a27"></td>
+                            </tr>
+                            <tr>
+                                <td>租賃交易應付金額</td>
+                                <td id="a28"></td>
+                            </tr>
+                            <tr>
+                                <td>轉騎優惠金額</td>
+                                <td id="a29"></td>
+                            </tr>
+                            <tr>
+                                <td>專案優惠金額</td>
+                                <td id="a30"></td>
+                            </tr>
+                            <tr>
+                                <td>專案優惠旗標</td>
+                                <td id="a31"></td>
+                            </tr>
+                            <tr>
+                                <td>借車時間</td>
+                                <td id="a32"></td>
+                            </tr>
+                            <tr>
+                                <td>此次轉乘識別群組#3</td>
+                                <td id="a33"></td>
+                            </tr>
+                            <tr>
+                                <td>此次轉乘識別群組#2</td>
+                                <td id="a34"></td>
+                            </tr>
+                            <tr>
+                                <td>交易後卡片餘額</td>
+                                <td id="a35"></td>
+                            </tr>
+                            <tr>
+                                <td>卡片交易序號</td>
+                                <td id="a36"></td>
+                            </tr>
+                            <tr>
+                                <td>SAM卡號</td>
+                                <td id="a37"></td>
+                            </tr>
+                            <tr>
+                                <td>交易驗證碼(押碼值)</td>
+                                <td id="a38"></td>
+                            </tr>
+                            <tr>
+                                <td>押碼byte array</td>
+                                <td id="a39"></td>
+                            </tr>
+                            <tr>
+                                <td>扣款種類</td>
+                                <td id="a40"></td>
+                            </tr>
+                            <tr>
+                                <td>腳踏車編號</td>
+                                <td id="a41"></td>
+                            </tr>
+                            <tr>
+                                <td>還車車柱編號</td>
+                                <td id="a42"></td>
+                            </tr>
+                            <tr>
+                                <td>借車車柱編號</td>
+                                <td id="a43"></td>
+                            </tr>
+                            <tr>
+                                <td>月票到期日</td>
+                                <td id="a44"></td>
+                            </tr>
+                            <tr>
+                                <td>效期卡片有效天數</td>
+                                <td id="a45"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,155 @@
+<!--#include file="../header.html" -->
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>金額轉換工具（Hex → Dec）</title>
+
+<script src="./hexconvert.js"></script>
+
+<style>
+/* ===============================
+   ⭐ 基本版面（貼齊 monthly / battery）
+=============================== */
+.container-fluid {
+    padding-left: 0 !important;
+}
+
+.page-header {
+    margin-left: 0;
+    padding-left: 0;
+}
+
+/* 查詢區透明化（完全比照 monthly） */
+#page-wrapper #form_value.panel-heading {
+    background-color: transparent !important;
+    border: none !important;
+    padding-left: 28px;
+    padding-right: 0;
+}
+
+/* ===============================
+   ⭐ 結果表格（用 table 結構，行為與 monthly 一致）
+=============================== */
+.hex-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.hex-table th,
+.hex-table td {
+    border: 1px solid #30363d;
+    padding: 10px;
+    text-align: center;
+    background: #0d1117;
+    color: #e6edf3;
+}
+
+.hex-table th {
+    background: #1e2730;
+    font-weight: bold;
+}
+
+.hex-table td {
+    transition: background-color 0.2s, box-shadow 0.2s;
+}
+
+.hex-table td:hover {
+    background: #232f3b;
+    box-shadow: inset 0 0 0 1px #4ea5d9;
+    cursor: pointer;
+}
+
+/* ===============================
+   ⭐ 使用說明區（完全沿用 monthly / tappay）
+=============================== */
+.info-section {
+    margin-top: 18px;
+    padding: 18px 20px;
+    background: #162028;
+    border-left: 4px solid #4ea5d9;
+    color: #d8dee9;
+    line-height: 1.6;
+}
+
+.info-section h4 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 16px;
+    color: #ffffff;
+}
+</style>
+</head>
+
+<body>
+
+<div id="page-wrapper" class="max-hight">
+
+    <!-- 標題 -->
+    <div class="row">
+        <div class="col-lg-12">
+            <h1 class="page-header">金額轉換工具（Hex → Decimal）</h1>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="container-fluid">
+
+            <!-- ⭐ 查詢區 -->
+            <div class="panel-heading form-inline" id="form_value">
+                <div class="form-group">
+                    <label for="log_input">貼上 log 或 十六進制 purse_balance</label><br>
+                    <textarea
+                        id="log_input"
+                        class="form-control"
+                        style="width:720px;height:140px;background:#0e1e28;color:#d4d4d4;border:1px solid #224657;"
+                    ></textarea>
+                    <br>
+                    <button
+                        type="button"
+                        class="btn btn-primary"
+                        onclick="extractFromLog()"
+                    >
+                        解析
+                    </button>
+                </div>
+            </div>
+
+            <!-- ⭐ 結果區 -->
+            <div class="panel-body card-search-result">
+                <table class="hex-table">
+                    <thead>
+                        <tr>
+                            <th style="width:220px;">項目</th>
+                            <th>內容（可單格點擊複製）</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>輸入 Hex</td>
+                            <td id="row_hex">-</td>
+                        </tr>
+                        <tr>
+                            <td>解析餘額</td>
+                            <td id="row_dec">-</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <!-- ⭐ 使用說明 -->
+                <div class="info-section">
+                    <h4>使用說明</h4>
+                    <p>1. 可直接貼上 <strong>完整 log</strong>，系統會自動擷取 <code>"purse_balance"</code>。</p>
+                    <p>2. 亦可只貼上 <strong>單獨十六進制</strong>（如 <code>00016f</code>）。</p>
+                    <p>3. 表格中 <strong>每一格皆可點擊複製</strong></p>
+                    <p>4. 解析後會自動轉換為十進位金額（單位：元）。</p>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

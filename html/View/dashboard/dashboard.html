@@ -1,0 +1,414 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<div id="page-wrapper" class="max-hight">
+  <div class="row">
+    <div class="col-lg-12">
+
+      <style>
+        /* ===============================
+           Dashboard 2.0 - Refined Dark UI
+           =============================== */
+
+        :root {
+          --bg-card: #161b22;
+          --bg-hover: #1f2937;
+          --border-color: #30363d;
+          --text-main: #e6edf3;
+          --text-sub: #8b949e;
+          
+          /* 定義區塊主色調 (更鮮明的配色) */
+          --c-money: #38bdf8;   /* 藍色 */
+          --c-battery: #fbbf24; /* 琥珀黃 (修復電池卡片顏色) */
+          --c-error: #f87171;   /* 紅色 */
+          --c-lost: #a78bfa;    /* 紫色 */
+          --c-today: #34d399;   /* 綠色 */
+        }
+
+        .dashboard-wrap {
+          padding: 20px 0;
+          font-family: "Segoe UI", "Microsoft JhengHei", sans-serif;
+        }
+
+        /* ===== Header ===== */
+        .dashboard-header {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          margin-bottom: 25px;
+          padding-bottom: 15px;
+          border-bottom: 1px solid var(--border-color);
+        }
+
+        .dashboard-title {
+          font-size: 26px;
+          font-weight: 700;
+          color: var(--text-main);
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+        }
+
+        .dashboard-title small {
+          font-size: 14px;
+          color: var(--text-sub);
+          font-weight: 400;
+          margin-left: 5px;
+        }
+
+        .dashboard-range {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          background: #0d1117;
+          padding: 6px 6px 6px 16px;
+          border-radius: 8px;
+          border: 1px solid var(--border-color);
+        }
+
+        .dashboard-range span {
+          font-size: 13px;
+          color: var(--text-sub);
+          font-weight: 600;
+        }
+
+        .dashboard-range select {
+          background: var(--bg-card);
+          color: var(--text-main);
+          border: 1px solid var(--border-color);
+          border-radius: 6px;
+          padding: 6px 12px;
+          font-size: 13px;
+          outline: none;
+          cursor: pointer;
+        }
+        .dashboard-range select:hover { border-color: var(--text-sub); }
+
+        /* ===== Cards Layout ===== */
+        .dashboard-cards {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 24px;
+        }
+
+        /* ===== Card Design ===== */
+        .dashboard-card {
+          position: relative;
+          background: linear-gradient(145deg, #161b22 0%, #1c2128 100%);
+          border-radius: 12px;
+          padding: 24px;
+          min-height: 140px;
+          border: 1px solid var(--border-color);
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .dashboard-card:hover {
+          transform: translateY(-5px);
+          box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+          background: linear-gradient(145deg, #1c222b 0%, #212830 100%);
+        }
+
+        /* 左側邊條 */
+        .dashboard-card::before {
+          content: '';
+          position: absolute;
+          left: 0; top: 20px; bottom: 20px; width: 4px;
+          border-radius: 0 4px 4px 0;
+          background: currentColor;
+        }
+
+        /* 背景浮水印 Icon */
+        .bg-icon {
+          position: absolute;
+          right: -15px;
+          bottom: -15px;
+          font-size: 90px;
+          opacity: 0.04;
+          transform: rotate(-15deg);
+          pointer-events: none;
+          transition: all 0.4s ease;
+        }
+        .dashboard-card:hover .bg-icon {
+          opacity: 0.1;
+          transform: rotate(0deg) scale(1.1);
+        }
+
+        /* 標題區 */
+        .card-header {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+        .card-title {
+          font-size: 14px;
+          font-weight: 600;
+          color: var(--text-sub);
+          letter-spacing: 0.5px;
+        }
+
+        /* 數字顯示區 */
+        .card-value {
+          min-height: 50px; /* 固定高度防止跳動 */
+          display: flex;
+          align-items: center;
+        }
+        .card-value h2 {
+          font-size: 42px;
+          margin: 0;
+          font-weight: 700;
+          color: var(--text-main);
+          line-height: 1;
+        }
+
+        /* 次要說明 */
+        .card-sub {
+          font-size: 12px;
+          color: #6e7681;
+          margin-top: 15px;
+        }
+
+        /* ===== 載入中樣式 ===== */
+        .loading-state {
+          font-size: 16px !important;
+          color: var(--text-sub) !important;
+          font-weight: 400 !important;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          opacity: 0.7;
+        }
+        .fa-spin { animation: fa-spin 1s infinite linear; }
+
+   /* ===== 個別卡片配色 (修正版：移除螢光暈影) ===== */
+        
+        /* 統一設定：移除所有數字的文字陰影 */
+        .card-value h2 {
+           text-shadow: none !important;
+           font-weight: 600; /*稍微減輕一點粗度，讓視覺更乾淨*/
+        }
+
+        /* 1. 扣款異常 (藍) */
+        .card-type-money { color: var(--c-money); }
+        .card-type-money:hover { border-color: var(--c-money); }
+        .card-type-money h2 { 
+            color: var(--c-money); /* 改用實色 */
+        }
+
+        /* 2. 電池空值 (黃) */
+        .card-type-battery { color: var(--c-battery); }
+        .card-type-battery:hover { border-color: var(--c-battery); }
+        .card-type-battery h2 { 
+            color: var(--c-battery); 
+        }
+
+        /* 3. 9970 待轉 (紅) */
+        .card-type-error { color: var(--c-error); }
+        .card-type-error:hover { border-color: var(--c-error); }
+        .card-type-error h2 { 
+            color: var(--c-error); 
+        }
+
+        /* 4. 紀錄遺失 (紫) */
+        .card-type-lost { color: var(--c-lost); }
+        .card-type-lost:hover { border-color: var(--c-lost); }
+        .card-type-lost h2 { 
+            color: var(--c-lost); 
+        }
+
+        /* 5. 今日收信 (綠 - Highlight) */
+        .card-type-today { color: var(--c-today); }
+        .card-type-today.highlight {
+          background: linear-gradient(145deg, #161b22 0%, #064e3b 300%);
+          border: 1px solid rgba(52, 211, 153, 0.4);
+        }
+        .card-type-today:hover { border-color: var(--c-today); }
+        .card-type-today h2 { 
+            color: #4ade80; /* 稍微亮一點的綠色實色，易讀 */
+        }
+      </style>
+
+      <div class="dashboard-wrap">
+
+        <div class="dashboard-header">
+          <div class="dashboard-title">
+            <i class="fa-solid fa-chart-pie" style="color: var(--c-money); font-size: 24px;"></i>
+            重要案件統計
+            <small id="rangeText">（本月）</small>
+          </div>
+
+          <div class="dashboard-range">
+            <span><i class="fa-regular fa-calendar"></i> 統計區間</span>
+            <select id="rangeSelect">
+              <option value="month">本月</option>
+              <option value="week">本週（週一～週日）</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="dashboard-cards">
+
+          <div class="dashboard-card card-type-money">
+            <i class="fa-solid fa-file-invoice-dollar bg-icon"></i>
+            <div class="card-header">
+              <i class="fa-solid fa-circle-exclamation"></i>
+              <span class="card-title">扣款異常</span>
+            </div>
+            <div class="card-value">
+              <h2 id="money">--</h2> 
+            </div>
+            <div class="card-sub">
+              系統扣款異常案件
+            </div>
+          </div>
+
+          <div class="dashboard-card card-type-battery">
+            <i class="fa-solid fa-battery-empty bg-icon"></i>
+            <div class="card-header">
+              <i class="fa-solid fa-bolt"></i>
+              <span class="card-title">電池空值</span>
+            </div>
+            <div class="card-value">
+              <h2 id="battery">--</h2>
+            </div>
+            <div class="card-sub">
+              電池欄位偵測為空
+            </div>
+          </div>
+
+          <div class="dashboard-card card-type-error">
+            <i class="fa-solid fa-right-left bg-icon"></i>
+            <div class="card-header">
+              <i class="fa-solid fa-share-from-square"></i>
+              <span class="card-title">9970 待轉</span>
+            </div>
+            <div class="card-value">
+              <h2 id="error">--</h2>
+            </div>
+            <div class="card-sub">
+              移轉繳費名單
+            </div>
+          </div>
+
+          <div class="dashboard-card card-type-lost">
+            <i class="fa-solid fa-magnifying-glass-minus bg-icon"></i>
+            <div class="card-header">
+              <i class="fa-solid fa-ghost"></i>
+              <span class="card-title">紀錄遺失</span>
+            </div>
+            <div class="card-value">
+              <h2 id="lost">--</h2>
+            </div>
+            <div class="card-sub">
+              還車紀錄遺失
+            </div>
+          </div>
+
+          <div class="dashboard-card card-type-today highlight">
+            <i class="fa-solid fa-envelope-open-text bg-icon"></i>
+            <div class="card-header">
+              <i class="fa-regular fa-paper-plane"></i>
+              <span class="card-title">今日收信</span>
+            </div>
+            <div class="card-value">
+              <h2 id="today">--</h2>
+            </div>
+            <div class="card-sub">
+              微笑單車公司來信
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <script>
+        async function loadGmailDashboard() {
+          const range = document.getElementById('rangeSelect').value;
+          
+          try {
+            const res = await fetch(`/api/gmail/count?range=${range}`);
+            const json = await res.json();
+            if (!json?.data) return;
+
+            Object.entries(json.data).forEach(([key, value]) => {
+              const el = document.getElementById(key);
+              if (el) {
+                // 移除載入中樣式，恢復數字樣式
+                el.classList.remove('loading-state');
+                animateValue(el, 0, value, 800);
+              }
+            });
+          } catch (err) {
+            console.error('[Dashboard]', err);
+          }
+        }
+
+        // 數字跳動動畫
+        function animateValue(obj, start, end, duration) {
+          if (start === end) {
+              obj.innerHTML = end;
+              return;
+          }
+          let startTimestamp = null;
+          const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            obj.innerHTML = Math.floor(progress * (end - start) + start);
+            if (progress < 1) {
+              window.requestAnimationFrame(step);
+            } else {
+              obj.innerHTML = end;
+            }
+          };
+          window.requestAnimationFrame(step);
+        }
+
+        // 設定載入中狀態
+        function setLoadingState() {
+          const ids = ['money', 'battery', 'error', 'lost', 'today'];
+          const loadingHtml = '<i class="fa-solid fa-spinner fa-spin"></i> 載入中...';
+          
+          ids.forEach(id => {
+             const el = document.getElementById(id);
+             if(el) {
+               el.classList.add('loading-state'); // 加入 CSS 調整字體大小與顏色
+               el.innerHTML = loadingHtml;
+             }
+          });
+        }
+
+        const rangeTextMap = {
+          month: '（本月）',
+          week: '（本週：週一～週日）'
+        };
+
+        const rangeSelect = document.getElementById('rangeSelect');
+        const rangeText = document.getElementById('rangeText');
+
+        rangeSelect.addEventListener('change', () => {
+          rangeText.innerText = rangeTextMap[rangeSelect.value];
+          // 觸發載入中狀態
+          setLoadingState();
+          // 重新抓取資料
+          loadGmailDashboard();
+        });
+
+        // 初始執行
+        setLoadingState();
+        loadGmailDashboard();
+        
+        // 每分鐘自動更新
+        setInterval(() => {
+            // 自動更新時如果不希望畫面閃爍變回Loading，可移除下一行，或保留以提示使用者正在更新
+            // setLoadingState(); 
+            loadGmailDashboard();
+        }, 60000);
+      </script>
+
+    </div>
+  </div>
+</div>
