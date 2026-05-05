@@ -1,10 +1,21 @@
-# Smart Mobility Operations Platform (智慧運具營運與維運輔助系統)
+# 智慧運具營運與維運輔助系統 (Smart Mobility Operations Platform)
 
 這是我在任職期間參與開發與維護的內部營運輔助系統。此專案旨在解決客服、營運及開發團隊在日常維運與客訴排解中遇到的繁瑣查詢流程，將散落於各資料庫、第三方金流與票證系統（如一卡通、悠遊卡、TapPay）的數據進行整合。
 
 透過這個統一的 Web 工具平台，大幅降低了跨部門溝通的成本，並提升了問題排查與日誌解析的效率。
 
 *(註：本 README 專為個人作品集展示所寫，已隱去機密商業資訊與敏感配置，僅探討技術實作與功能架構)*
+
+---
+
+## 📖 目錄 (Table of Contents)
+
+- [🚀 專案亮點與我的貢獻](#-專案亮點與我的貢獻)
+- [🛠 技術堆疊 (Tech Stack)](#-技術堆疊-tech-stack)
+- [🌟 核心功能模組 (Features)](#-核心功能模組-features)
+- [📂 專案架構 (Project Structure)](#-專案架構-project-structure)
+- [⚙️ 本地端執行指南 (Getting Started)](#️-本地端執行指南-getting-started)
+- [💡 學習與成長](#-學習與成長)
 
 ---
 
@@ -15,6 +26,8 @@
 - **客服支援自動化**：實作「罐頭訊息管理系統 (Canned Messages)」，以及票卡、月票、車輛騎乘交易紀錄的圖形化查詢介面，將原先需由工程師撈取資料的需求，轉移給客服團隊自行操作。
 - **容器化部署**：透過 Docker 與 `docker-compose` 將前後端與獨立設定環境進行容器化，確保持續整合 (CI/CD) 的穩定性。
 
+---
+
 ## 🛠 技術堆疊 (Tech Stack)
 
 ### Backend
@@ -24,12 +37,12 @@
 - **Google APIs**：串接 Gmail 自動寄發特定的通知與信件。
 
 ### Frontend
-- **HTML / CSS / JavaScript (Vanilla)**：因應快速開發與強烈工具屬性，採用原生技術搭配 EJS / 靜態渲染，達成極低的載入延遲。
+- **HTML / CSS / JavaScript (Vanilla)**：因應快速開發與強烈工具屬性，採用原生技術搭配靜態渲染，達成極低的載入延遲。
 - **Bootstrap / Custom CSS**：建立乾淨、響應式且易用的 Dashboard 介面。
 
 ### DevOps & Infrastructure
 - **Docker / Docker Compose**：標準化運作環境，實現高可攜性。
-- **GitLab CI/CD**：(.gitlab-ci.yml) 自動化構建與部屬流程。
+- **GitLab CI/CD**：自動化構建與部屬流程。
 
 ---
 
@@ -41,8 +54,8 @@
 - **月票管理**：整合地方公共交通月票查詢系統，快速比對會員帳號與月票效期。
 
 ### 2. 車輛與設備維護 (Vehicle & Hardware Ops)
-- **車況與電池監控**：(Battery & Bike API) 透過外觀車號或硬體 ID，查詢即時的車輛狀態與電池電量。
-- **騎乘紀錄追蹤**：(Bike Transaction) 圖形化展現單筆交易的起訖點、收費與狀態。
+- **車況與電池監控**：透過外觀車號或硬體 ID，查詢即時的車輛狀態與電池電量。
+- **騎乘紀錄追蹤**：圖形化展現單筆交易的起訖點、收費與狀態。
 
 ### 3. 開發者維運工具箱 (DevOps Toolkits)
 - **Log Parser / Time Sort**：上傳或貼上 Raw Server Logs，系統自動進行格式化、高亮關鍵字及時間軸排序，大幅減少 Debug 時間。
@@ -54,11 +67,69 @@
 
 ---
 
+## 📂 專案架構 (Project Structure)
+
+```text
+.
+├── .gitlab-ci.yml        # CI/CD 流程設定檔
+├── docker-compose.yml    # Docker Compose 服務部署設定
+├── Dockerfile            # Docker Image 建置檔
+├── .env.example          # 環境變數範例檔
+└── html/                 # 系統核心程式碼目錄
+    ├── Controller/       # Express Route Controllers (邏輯處理)
+    ├── Middleware/       # 中介層 (資料庫連線、API 日誌攔截等)
+    ├── View/             # 前端靜態頁面 (HTML/JS/CSS)
+    ├── Public/           # 共用靜態資源 (Images, CSS libraries)
+    ├── logs/             # 本地系統執行日誌 (由 Morgan/Winston 產生)
+    ├── start.js          # Node.js 系統入口點
+    └── package.json      # Node.js 專案依賴設定
+```
+
+---
+
+## ⚙️ 本地端執行指南 (Getting Started)
+
+本系統支援透過 **Docker 容器化** 或 **原生 Node.js** 兩種方式啟動。
+
+### 1. 環境前置作業
+請先將根目錄的 `.env.example` 複製一份並重新命名為 `.env`，接著依照需求填寫相關環境變數設定。
+
+```bash
+cp .env.example .env
+```
+
+### 2. 方法一：透過 Docker Compose 啟動 (推薦)
+確保系統已安裝 Docker 與 Docker Compose。
+在專案根目錄下執行以下指令：
+
+```bash
+docker-compose up -d --build
+```
+
+服務啟動後，可於瀏覽器前往 `http://localhost:<PORT>` 進行訪問。
+
+### 3. 方法二：透過 Node.js 原生啟動
+確保系統已安裝 Node.js (建議版本 v16 以上)。
+
+```bash
+# 進入核心程式目錄
+cd html
+
+# 安裝依賴套件
+npm install
+
+# 啟動服務
+npm start
+```
+
+服務預設開啟於 `http://localhost:80` (請依據您 `.env` 中設定的 PORT 進行存取)。
+
+---
+
 ## 💡 學習與成長
 
 在開發這個專案的過程中，我學到了如何**從使用者的痛點出發**。原先很多排查異常的問題都需要開發團隊花費 10-20 分鐘跑 SQL、看 Log，而這個工具的誕生，將這些流程簡化為「輸入條件 -> 一鍵查詢」。
 
-我也深入了解了 Node.js 作為 Gateway API 的角色發揮，不論是資料的聚合 (Aggregation)、還是對外請求的代理 (Proxy)，並學會如何透過 Docker 讓這類內部工具可以不受伺服器環境影響，穩定地提供服務。
-
 ---
+
 *If you have any questions about the implementations or system design patterns used here, feel free to reach out!*
